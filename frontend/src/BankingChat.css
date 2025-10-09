@@ -1,0 +1,393 @@
+/* --- Global Reset and Base Styles (Inheriting from the login theme) --- */
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #0a0d37; /* Dark blue background */
+    color: #e0e0e0;
+    overflow: hidden; /* Prevent body scroll */
+    min-height: 100vh;
+}
+
+.chat-app-container {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    max-width: 1400px;
+    margin: 0 auto;
+    background: rgba(12, 12, 30, 0.9); /* Subtle dark background for the app */
+    border-radius: 12px;
+    overflow: hidden;
+    /* Central shadow/glow for the whole application box */
+    box-shadow: 0 0 30px rgba(0, 191, 255, 0.15), 0 0 0 1px rgba(0, 191, 255, 0.1);
+}
+
+/* --- 1. Sidebar Styles --- */
+.sidebar {
+    width: 300px;
+    min-width: 280px;
+    background: #0d0d21; /* Slightly darker than the main app */
+    border-right: 1px solid rgba(0, 191, 255, 0.1);
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    padding: 0 20px 20px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    margin-bottom: 20px;
+}
+
+.sidebar-header .banking-logo-container {
+    width: 40px;
+    height: 40px;
+    margin: 0;
+}
+
+.sidebar-header .banking-logo-svg {
+    transform: scale(0.33); /* Scale down the logo for the sidebar */
+    transform-origin: top left;
+    box-shadow: none; /* Reduce excessive glow in sidebar */
+    background: none;
+    border: none;
+}
+.sidebar-header .circle-outer, .sidebar-header .circle-inner {
+    display: none; /* Hide rings for a cleaner look */
+}
+
+.sidebar-header .title-text {
+    font-size: 1.5em;
+    font-weight: 700;
+    color: #fff;
+    margin-left: 20px;
+    letter-spacing: 1px;
+    text-shadow: 0 0 5px rgba(0, 191, 255, 0.4);
+}
+
+/* New Chat Button */
+.new-chat-button {
+    width: 90%;
+    padding: 12px 20px;
+    margin: 0 auto 20px auto;
+    border: 1px solid #00bfff;
+    border-radius: 8px;
+    background: rgba(0, 175, 255, 0.1);
+    color: #00bfff;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-align: left;
+    box-shadow: 0 0 10px rgba(0, 175, 255, 0.2);
+}
+
+.new-chat-button:hover {
+    background: rgba(0, 175, 255, 0.25);
+    box-shadow: 0 0 15px rgba(0, 175, 255, 0.4);
+}
+
+.new-chat-button .fas {
+    margin-right: 10px;
+}
+
+/* Upload Section */
+.upload-section {
+    padding: 10px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.upload-label {
+    display: block;
+    padding: 8px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+    font-weight: 500;
+    transition: background-color 0.3s;
+    text-align: center;
+    border: 1px dashed rgba(0, 191, 255, 0.3);
+}
+
+.pdf-upload { background-color: rgba(189, 21, 21, 0.1); color: #ff5555; }
+.pdf-upload:hover { background-color: rgba(189, 21, 21, 0.2); }
+
+.error-upload { background-color: rgba(255, 165, 0, 0.1); color: #ffaa00; }
+.error-upload:hover { background-color: rgba(255, 165, 0, 0.2); }
+
+.upload-label input[type="file"] {
+    display: none;
+}
+
+.upload-label .fas {
+    margin-right: 8px;
+}
+
+
+/* Chat History List */
+.chat-history-list {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 0 20px;
+}
+
+.chat-history-list h3 {
+    margin: 0 0 15px 0;
+    font-size: 1.1em;
+    color: #00bfff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.history-item {
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.95em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: background-color 0.2s, box-shadow 0.2s;
+    display: flex;
+    align-items: center;
+}
+
+.history-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.history-item.active {
+    background-color: #003366;
+    color: #fff;
+    font-weight: 600;
+    border-left: 3px solid #00bfff;
+    padding-left: 12px;
+    box-shadow: 0 0 8px rgba(0, 191, 255, 0.3);
+}
+
+.history-item .fas {
+    margin-right: 10px;
+    font-size: 0.9em;
+}
+
+/* --- 2. Main Chat Area Styles --- */
+.main-chat-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    padding: 0;
+}
+
+.chat-messages {
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Chat Placeholder */
+.chat-placeholder {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: #8899a6;
+    opacity: 0.8;
+}
+
+.chat-placeholder .fas {
+    font-size: 3em;
+    margin-bottom: 20px;
+    color: #00bfff;
+    text-shadow: 0 0 10px rgba(0, 191, 255, 0.5);
+}
+
+.chat-placeholder h1 {
+    font-size: 1.8em;
+    margin-bottom: 10px;
+}
+
+.chat-placeholder p {
+    font-size: 1.1em;
+}
+
+/* Individual Message Styles */
+.chat-message {
+    max-width: 80%;
+    padding: 12px 18px;
+    border-radius: 18px;
+    line-height: 1.6;
+    position: relative;
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.user-message {
+    align-self: flex-end;
+    background-color: #007bff; /* Primary blue for user */
+    color: white;
+    border-bottom-right-radius: 4px;
+    /* User message has a slight glow */
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.5);
+}
+
+.ai-message {
+    align-self: flex-start;
+    background-color: #1a1a2e; /* Darker, futuristic background for AI */
+    color: #e0e0e0;
+    border: 1px solid rgba(0, 191, 255, 0.2);
+    border-top-left-radius: 4px;
+    /* AI message has the cyber glow */
+    box-shadow: 0 2px 10px rgba(0, 191, 255, 0.2);
+}
+
+.message-content {
+    /* Ensures text is inside the bubble */
+    word-wrap: break-word;
+    white-space: pre-wrap;
+}
+
+/* Loading/Typing Indicator */
+.loading-message {
+    min-height: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.dot-flashing {
+    position: relative;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #00bfff;
+    color: #00bfff;
+    box-shadow: 0 0 5px #00bfff;
+    animation: dotFlashing 1s infinite alternate;
+    margin-left: 4px;
+}
+
+.dot-flashing::before, .dot-flashing::after {
+    content: '';
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #00bfff;
+    color: #00bfff;
+    box-shadow: 0 0 5px #00bfff;
+    animation: dotFlashing 1s infinite alternate;
+}
+
+.dot-flashing::before {
+    left: -12px;
+    animation-delay: 0s;
+}
+
+.dot-flashing::after {
+    left: 12px;
+    animation-delay: 0.5s;
+}
+
+@keyframes dotFlashing {
+    0% { opacity: 0.8; }
+    50% { opacity: 1; background-color: #00f6ff; transform: scale(1.2); }
+    100% { opacity: 0.8; }
+}
+
+/* Chat Input Form */
+.chat-input-form {
+    display: flex;
+    padding: 20px;
+    border-top: 1px solid rgba(0, 191, 255, 0.1);
+    background-color: #10102a;
+    box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.chat-input-form input {
+    flex-grow: 1;
+    padding: 15px 20px;
+    border: 1px solid #1a1a2e;
+    border-radius: 25px;
+    background-color: #1a1a2e;
+    color: #e0e0e0;
+    font-size: 1em;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.chat-input-form input:focus {
+    outline: none;
+    border-color: #00bfff;
+    box-shadow: 0 0 8px rgba(0, 191, 255, 0.5);
+}
+
+.chat-input-form button {
+    margin-left: 10px;
+    width: 50px;
+    height: 50px;
+    border: none;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0099ff, #0055ff);
+    color: white;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+    box-shadow: 0 4px 12px rgba(0, 100, 255, 0.4);
+}
+
+.chat-input-form button:hover:not(:disabled) {
+    background: linear-gradient(135deg, #00aaff, #0066ff);
+    transform: translateY(-1px);
+}
+
+.chat-input-form button:disabled {
+    background: #333;
+    cursor: not-allowed;
+    opacity: 0.6;
+    box-shadow: none;
+}
+
+/* Upload Status Bar */
+.upload-status-bar {
+    padding: 10px 20px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.9em;
+    border-radius: 5px;
+    margin: 10px 20px;
+}
+
+.upload-status-bar.info {
+    background-color: rgba(0, 175, 255, 0.15);
+    color: #00bfff;
+    border: 1px solid #00bfff;
+}
+.upload-status-bar.success {
+    background-color: rgba(0, 255, 100, 0.15);
+    color: #00ff64;
+    border: 1px solid #00ff64;
+}
+.upload-status-bar.error {
+    background-color: rgba(255, 0, 0, 0.15);
+    color: #ff5555;
+    border: 1px solid #ff5555;
+}
+.upload-status-bar .fas {
+    margin-right: 8px;
+}

@@ -1,0 +1,15 @@
+fastapi
+uvicorn
+python-multipart
+pydantic
+langchain
+langchain-core
+langchain-community
+langchain-chroma
+langchain-huggingface
+chromadb
+pypdf
+sentence-transformers
+llama-cpp-python  # Requires pre-compilation or specific installation, see setup notes
+numpy
+unstructured[local-inference]
