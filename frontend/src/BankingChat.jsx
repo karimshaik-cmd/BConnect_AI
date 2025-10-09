@@ -2,10 +2,11 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import BankingLogo from './components/BankingLogo';
 import ChatMessage from './components/ChatMessage';
 import { v4 as uuidv4 } from 'uuid';
+import './LoginUserPages.css';
 
 const API_BASE_URL = 'http://127.0.0.1:8000';
 
-function BankingChat() {
+function BankingChat({ onLogout }) {
   const [currentSessionId, setCurrentSessionId] = useState(null);
   const [message, setMessage] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
@@ -174,8 +175,8 @@ function BankingChat() {
       <div className="chat-history-list">
         <h3>History</h3>
         {sessions.map((session) => (
-          <div 
-            key={session.session_id} 
+          <div
+            key={session.session_id}
             className={`history-item ${session.session_id === currentSessionId ? 'active' : ''}`}
             onClick={() => switchSession(session)}
           >
@@ -184,6 +185,11 @@ function BankingChat() {
           </div>
         ))}
       </div>
+
+      {/* Logout Button */}
+      <button className="sidebar-logout-button" onClick={onLogout}>
+        <i className="fas fa-sign-out-alt"></i> Logout
+      </button>
     </div>
   );
 

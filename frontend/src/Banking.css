@@ -1,0 +1,416 @@
+/* --- BankingLogin.css (merged) --- */
+/* --- Keyframes for Sparkling Effect --- */
+@keyframes sparkle-sweep {
+
+0% {
+transform: translateX(-100%) skewX(-30deg);
+opacity: 0;
+}
+
+20% {
+transform: translateX(100%) skewX(-30deg);
+opacity: 1;
+}
+
+40% {
+transform: translateX(200%) skewX(-30deg);
+opacity: 0;
+}
+
+100% {
+transform: translateX(200%) skewX(-30deg);
+opacity: 0;
+}
+}
+
+/* --- Global & Container Styles --- */
+body {
+margin: 0;
+display: flex;
+justify-content: center;
+align-items: center;
+min-height: 100vh;
+background-color: #0a0d37;
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+color: #fff;
+overflow: hidden;
+position: relative;
+}
+
+/* 1. FUTURISTIC MATRIX/GRID BACKGROUND EFFECT */
+body::before {
+content: '';
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+
+background: repeating-linear-gradient(
+0deg,
+rgba(0, 150, 255, 0.05),
+rgba(0, 150, 255, 0.05) 1px,
+transparent 1px,
+transparent 50px
+),
+repeating-linear-gradient(
+90deg,
+rgba(0, 150, 255, 0.03),
+rgba(0, 150, 255, 0.03) 1px,
+transparent 1px,
+transparent 50px
+);
+z-index: -2;
+}
+
+.login-container {
+display: flex;
+width: 900px;
+max-width: 90%;
+height: 550px;
+/* Subtle outer shadow for depth */
+box-shadow: 0 25px 70px rgba(0, 0, 0, 0.4);
+border-radius: 12px;
+overflow: hidden;
+}
+
+/* --- Design Panel (Left Side) Styles --- */
+.design-panel {
+flex: 1;
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+padding: 40px;
+
+background-color: #000000;
+position: relative;
+overflow: hidden;
+}
+
+/* 1. Large Circular AMBIENT Glow Effect (Crucial for integration) */
+.design-panel::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(1.2);
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 150, 255, 0.3) 0%, rgba(0, 50, 150, 0.1) 50%, transparent 80%);
+  filter: blur(120px);
+  animation: pulse-glow 8s ease-in-out infinite;
+  z-index: 0;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.6; }
+  50% { transform: translate(-50%, -50%) scale(1.4); opacity: 1; }
+}
+
+/* 2. Logo Wrapper (Holds the image, corrected size) */
+.logo-wrapper {
+z-index: 1;
+width: 200px; /* Set back to optimal size */
+height: 200px;
+position: relative;
+margin-bottom: 25px;
+display: flex;
+justify-content: center;
+align-items: center;
+border-radius: 50%;
+animation: rotate-logo 20s linear infinite;
+}
+@keyframes rotate-logo {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 3. Logo SVG Styling */
+.logo-svg {
+width: 100%;
+height: 100%;
+}
+
+.logo-title {
+z-index: 1;
+font-size: 3em;
+margin: 0 0 10px 0;
+font-weight: 700;
+letter-spacing: 5px;
+color: #fff;
+/* Subtle, tight glow matching the logo's color */
+text-shadow: 0 0 8px rgba(0, 180, 255, 0.6);
+}
+
+.logo-subtitle {
+z-index: 1;
+text-align: center;
+font-size: 1.1em;
+line-height: 1.5;
+color: #a0a0ff;
+}
+
+/* --- Login Panel (Right Side) Styles --- */
+.login-panel {
+flex: 1;
+padding: 60px 40px;
+position: relative;
+z-index: 2;
+
+/* IMPORTANT: Add clipping so the light sweep only appears inside the panel's boundary */
+overflow: hidden;
+
+/* Glassmorphism Effect */
+background: rgba(18, 18, 30, 0.7);
+border: 1px solid rgba(255, 255, 255, 0.05);
+backdrop-filter: blur(15px);
+border-radius: 12px;
+/* Overlapping shadow to separate the panels */
+box-shadow: -15px 0 40px rgba(0, 0, 0, 0.7);
+
+display: flex;
+flex-direction: column;
+justify-content: center;
+}
+
+/* 2. GLOWING BORDER AND LINE EFFECTS (Static Glow) */
+.login-panel::after {
+content: '';
+position: absolute;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+border-radius: 12px;
+
+/* Thin, bright blue glow border with soft diffusion */
+box-shadow:
+0 0 10px rgba(0, 191, 255, 0.5),   /* Outer halo */
+inset 0 0 10px rgba(0, 191, 255, 0.3), /* Inner light reflection */
+/* Extra subtle border line effect */
+0 0 0 1px rgba(0, 191, 255, 0.1);
+
+pointer-events: none;
+z-index: -1;
+}
+
+/* 3. SPARKLING LIGHT SWEEP ANIMATION (The new dynamic effect) */
+.login-panel::before {
+  /*content: '';*/
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 20px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.6) 50%,
+    transparent 100%
+  );
+  transform: translateX(-100%) skewX(-30deg);
+  animation: sparkle-sweep 6s infinite;
+  opacity: 0.8;
+  pointer-events: none;
+  z-index: 10;
+}
+
+
+.login-title {
+font-size: 2.5em;
+font-weight: 600;
+margin-bottom: 40px;
+letter-spacing: 2px;
+color: #fff;
+}
+
+.login-form {
+display: flex;
+flex-direction: column;
+}
+
+.input-group {
+position: relative;
+margin-bottom: 20px;
+}
+
+.login-input {
+/* Corrected width to 100% */
+width: 90%;
+padding: 15px 15px 15px 45px;
+background-color: #171829;
+border: 1px solid #171829;
+border-radius: 5px;
+color: #fff;
+font-size: 1em;
+transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.login-input:focus {
+outline: none;
+border-color: #00bfff;
+box-shadow: 0 0 5px rgba(0, 191, 255, 0.8);
+}
+
+/* Icon styling */
+.input-group .icon {
+position: absolute;
+top: 50%;
+left: 15px;
+transform: translateY(-50%);
+color: #8899a6;
+font-size: 1.1em;
+}
+
+.forgot-password {
+align-self: flex-end;
+color: #00bfff;
+text-decoration: none;
+font-size: 0.95em;
+margin-bottom: 30px;
+transition: color 0.3s;
+}
+
+.login-button {
+padding: 15px;
+border: none;
+border-radius: 5px;
+font-size: 1.2em;
+font-weight: 600;
+cursor: pointer;
+/* Bright blue gradient for the button */
+background: linear-gradient(90deg, #0099ff, #0055ff);
+color: #fff;
+box-shadow: 0 5px 20px rgba(0, 100, 255, 0.6);
+transition: all 0.3s ease;
+}
+
+.login-button:hover {
+background: linear-gradient(90deg, #00aaff, #0066ff);
+box-shadow: 0 8px 25px rgba(0, 100, 255, 0.8);
+transform: translateY(-2px);
+}
+body::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: url('https://www.transparenttextures.com/patterns/stardust.png');
+  opacity: 0.05;
+  animation: drift-particles 60s linear infinite;
+  z-index: -1;
+}
+
+@keyframes drift-particles {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-100px); }
+}
+
+
+/* --- BankingLogo.css (merged) --- */
+.logo-container {
+  width: 250px;
+  height: 250px;
+  position: relative;
+  margin: auto;
+}
+
+.banking-logo-svg {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle at 60% 40%, #0a1a2f 70%, #001a3a 100%);
+  border-radius: 50%;
+  box-shadow: 0 0 32px 8px #0ff, 0 0 8px 2px #0ff inset;
+  overflow: visible;
+  transition: box-shadow 0.5s;
+}
+
+.banking-logo-svg.animate-glow {
+  box-shadow: 0 0 48px 16px #00f6ff, 0 0 16px 4px #00f6ff inset;
+}
+
+.circle-outer {
+  position: absolute;
+  top: 0; left: 0;
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  border: 3px solid #00cfff;
+  box-shadow: 0 0 16px 2px #00cfff, 0 0 4px 1px #00cfff inset;
+  z-index: 1;
+}
+
+.circle-inner {
+  position: absolute;
+  top: 18px; left: 18px;
+  width: 84px; height: 84px;
+  border-radius: 50%;
+  border: 2px solid #0ff;
+  box-shadow: 0 0 8px 2px #0ff inset;
+  z-index: 2;
+}
+
+.logo-arrows {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 120px;
+  height: 120px;
+  z-index: 3;
+  pointer-events: none;
+  display: block;
+}
+
+/* ensure SVG paths pick up a subtle glow matching the surrounding rings */
+.logo-arrows path[filter] {
+  mix-blend-mode: screen;
+}
+
+/* small responsive tweak when container scales */
+.banking-logo-svg { /* keep existing rules, but ensure relative positioning for svg */
+  display: inline-block;
+}
+
+.tech-dots {
+  position: absolute;
+  width: 120px; height: 120px;
+  top: 0; left: 0;
+  z-index: 4;
+}
+.dot {
+  position: absolute;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #00cfff;
+  box-shadow: 0 0 8px 2px #00cfff;
+}
+.dot1 { top: 8px; left: 56px; }
+.dot2 { top: 56px; left: 8px; }
+.dot3 { top: 104px; left: 56px; }
+.dot4 { top: 56px; left: 104px; }
+
+.banking-logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 180px;
+  height: 180px;
+  position: relative;
+}
+
+/* Smooth infinite rotation */
+.rotating {
+  animation: rotateLogo 3s linear infinite;
+  transform-origin: 60px 60px;
+}
+
+@keyframes rotateLogo {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

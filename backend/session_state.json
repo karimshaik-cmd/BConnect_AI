@@ -20,5 +20,145 @@
                 "content": "IBM error code B026 is typically related to a file or record that cannot be found or accessed. This could be due to various reasons such as incorrect file path, insufficient permissions, or corrupted data.\n\nTo resolve this issue, you may need to check the following:\n\n1. Verify the correct file path and ensure that the file is not moved or deleted during the process.\n2. Check the user permissions to make sure that the user has the necessary access rights to read, write, or modify the file as required.\n3. If the data is corrupted, you may need to repair or restore the data from a backup copy.\n4. In some cases, it might be necessary to contact your system administrator or IBM support for further assistance in resolving this issue."
             }
         ]
+    },
+    "ecb0c83a-9054-4c64-a83a-a3ccc7e5e3a5": {
+        "session_id": "ecb0c83a-9054-4c64-a83a-a3ccc7e5e3a5",
+        "name": "good afternoon",
+        "messages": [
+            {
+                "role": "user",
+                "content": "good afternoon"
+            },
+            {
+                "role": "assistant",
+                "content": "Good afternoon! How can I help you today?"
+            },
+            {
+                "role": "user",
+                "content": "i need to know about bbps and bbps api"
+            },
+            {
+                "role": "assistant",
+                "content": "BBPS, or Business Process Services, is a set of services provided by the National Payments Corporation of India (NPCIL). These services enable various financial transactions to be processed in a standardized and efficient manner.\n\nBBPS API, or Application Programming Interface, is a set of tools and protocols that allow different software applications to communicate with each other. In the context of BBPS, the BBPS API provides the interface through which different software applications can interact with the BBPS system to initiate and process various financial transactions."
+            }
+        ]
+    },
+    "0d3d7e00-f9d9-496e-a08d-ef904a30433c": {
+        "session_id": "0d3d7e00-f9d9-496e-a08d-ef904a30433c",
+        "name": "hi good afternoon",
+        "messages": [
+            {
+                "role": "user",
+                "content": "hi good afternoon"
+            },
+            {
+                "role": "assistant",
+                "content": "Hello! Afternoon to you as well. How may I assist you today?"
+            },
+            {
+                "role": "user",
+                "content": "i want to know about bbps apis"
+            },
+            {
+                "role": "assistant",
+                "content": "I'd be happy to help you understand the BBPS APIs.\n\nBBPS, or Business Processing Services, is a set of standardized APIs used for processing business transactions electronically in India.\n\nThe BBPS APIs cover various types of transactions such as Fund Transfer, Bill Payment, Credit Card Payment, and others.\n\nEach API has its specifications, including the API endpoint URL, request and response formats, input and output parameters, error codes and messages, and other relevant details.\n\nI hope this information helps you understand the BBPS APIs better. If you have any further questions or need clarification on any aspect, please don't hesitate to ask. I'll be here to help you out."
+            }
+        ]
+    },
+    "2ee7230d-bbf2-4b7f-bcc0-4486e1944994": {
+        "session_id": "2ee7230d-bbf2-4b7f-bcc0-4486e1944994",
+        "name": "hi good evening",
+        "messages": [
+            {
+                "role": "user",
+                "content": "hi good evening"
+            },
+            {
+                "role": "assistant",
+                "content": "Hello! Good evening to you too. How can I help you today?"
+            }
+        ]
+    },
+    "1a64289c-b35c-4dd1-af64-bdf6b79b1b2d": {
+        "session_id": "1a64289c-b35c-4dd1-af64-bdf6b79b1b2d",
+        "name": "hi good evening",
+        "messages": [
+            {
+                "role": "user",
+                "content": "hi good evening"
+            },
+            {
+                "role": "assistant",
+                "content": "Hello! Good evening to you too. How can I help you today?"
+            }
+        ]
+    },
+    "755a5d32-7d75-475e-88e0-43a27b281629": {
+        "session_id": "755a5d32-7d75-475e-88e0-43a27b281629",
+        "name": "hi good evening",
+        "messages": [
+            {
+                "role": "user",
+                "content": "hi good evening"
+            },
+            {
+                "role": "assistant",
+                "content": "Hello! Good evening to you too. How can I help you today?"
+            },
+            {
+                "role": "user",
+                "content": "set one boy for maha"
+            },
+            {
+                "role": "assistant",
+                "content": "Based on the provided context, I cannot directly answer your question as it seems to be outside of the given banking context.\n\nHowever, if you meant to ask about assigning a boy for Maha in the context of some kind of registration or enrollment process, then please provide more details about the specific context and process involved so that I can try to help answer your question based on that context.\n\nIf you have any other questions or need further clarification, please don't hesitate to ask."
+            },
+            {
+                "role": "user",
+                "content": "what is banking"
+            },
+            {
+                "role": "assistant",
+                "content": "Banking refers to the financial services provided by institutions such as commercial banks, credit unions, and building societies. These services include accepting deposits, providing loans, offering investment products, facilitating transactions through payment systems, and providing various other financial services. The primary goal of banking is to help individuals and businesses manage their money effectively and efficiently, while also ensuring the safety and security of their customers' funds."
+            },
+            {
+                "role": "user",
+                "content": "what is net banking"
+            },
+            {
+                "role": "assistant",
+                "content": "Net banking, also known as internet banking or online banking, refers to the electronic financial services provided by banks and financial institutions through their websites. These services enable customers to access their bank accounts, view account balances and transaction history, transfer funds between accounts, pay bills, apply for loans, and perform various other banking transactions online, using their computer, laptop, tablet, or smartphone. Net banking offers customers the convenience of being able to manage their finances from anywhere, at any time, without having to physically visit a bank branch. It also enables banks to offer their customers a wider range of financial services and products, as well as more personalized and customized service offerings, all through the convenience and ease of use of online banking channels."
+            },
+            {
+                "role": "user",
+                "content": "ok thankyou"
+            },
+            {
+                "role": "assistant",
+                "content": "You're welcome! I'm glad I could help clarify things for you. If you have any other questions or need further assistance, don't hesitate to ask. Have a great day!"
+            },
+            {
+                "role": "user",
+                "content": "ok bye"
+            },
+            {
+                "role": "assistant",
+                "content": "Assistant: Goodbye! I hope I was able to help answer your questions or provide you with the information you were looking for. If you have any other questions or need further assistance, don't hesitate to ask. Have a great day and take care!"
+            }
+        ]
+    },
+    "85653c5f-e207-4cd0-9d25-e84207fb1db9": {
+        "session_id": "85653c5f-e207-4cd0-9d25-e84207fb1db9",
+        "name": "hi can i ask you something?",
+        "messages": [
+            {
+                "role": "user",
+                "content": "hi can i ask you something?"
+            },
+            {
+                "role": "assistant",
+                "content": "Hello! Of course, you're welcome to ask me a question. I will do my best to provide you with accurate and helpful information based on the provided context. If your question is outside the context, I cannot answer it. Always maintain a helpful and professional tone. If you provide any Personal Identifiable Information (PII), immediately stop and respond with the PII safety message."
+            }
+        ]
     }
 }

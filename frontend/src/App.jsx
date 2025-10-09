@@ -1,14 +1,38 @@
-import React from 'react';
+import React, { useState } from 'react';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import BankingChat from './BankingChat';
+import Login from './components/Login';
+import UserPage from './components/UserPage';
 import './BankingChat.css'; // Global styles for the chat app
 
 function App() {
-  return (
-    <div className="App">
-      <BankingChat />
-    </div>
-  );
+  const [loggedInUser, setLoggedInUser] = useState(null);
+
+  const handleLogin = (userType) => {
+    setLoggedInUser(userType);
+  };
+
+  const handleLogout = () => {
+    setLoggedInUser(null);
+  };
+
+  if (!loggedInUser) {
+    return <Login onLogin={handleLogin} />;
+  }
+
+  if (loggedInUser === 'user') {
+    return <UserPage onLogout={handleLogout} />;
+  }
+
+  if (loggedInUser === 'admin') {
+    return (
+      <div className="App">
+        <BankingChat onLogout={handleLogout} />
+      </div>
+    );
+  }
+
+  return null;
 }
 
 export default App;

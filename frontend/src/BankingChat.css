@@ -1,9 +1,9 @@
-/* --- Global Reset and Base Styles (Inheriting from the login theme) --- */
+/* --- Global Reset and Base Styles --- */
 body {
     margin: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #0a0d37; /* Dark blue background */
-    color: #e0e0e0;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    color: white;
     overflow: hidden; /* Prevent body scroll */
     min-height: 100vh;
 }
@@ -14,19 +14,17 @@ body {
     width: 100vw;
     max-width: 1400px;
     margin: 0 auto;
-    background: rgba(12, 12, 30, 0.9); /* Subtle dark background for the app */
+    background: rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     overflow: hidden;
-    /* Central shadow/glow for the whole application box */
-    box-shadow: 0 0 30px rgba(0, 191, 255, 0.15), 0 0 0 1px rgba(0, 191, 255, 0.1);
+    box-shadow: 0 0 30px rgba(0, 170, 255, 0.5);
 }
 
 /* --- 1. Sidebar Styles --- */
 .sidebar {
     width: 300px;
     min-width: 280px;
-    background: #0d0d21; /* Slightly darker than the main app */
-    border-right: 1px solid rgba(0, 191, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
     padding: 20px 0;
     display: flex;
     flex-direction: column;
@@ -36,8 +34,11 @@ body {
     display: flex;
     align-items: center;
     padding: 0 20px 20px 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(0, 170, 255, 0.5);
     margin-bottom: 20px;
+    background: linear-gradient(90deg, #005fbb, #00aaff);
+    border-radius: 8px;
+    box-shadow: 0 0 15px #00aaff;
 }
 
 .sidebar-header .banking-logo-container {
@@ -69,23 +70,22 @@ body {
 /* New Chat Button */
 .new-chat-button {
     width: 90%;
-    padding: 12px 20px;
+    padding: 14px 20px;
     margin: 0 auto 20px auto;
-    border: 1px solid #00bfff;
+    border: none;
     border-radius: 8px;
-    background: rgba(0, 175, 255, 0.1);
-    color: #00bfff;
-    font-size: 1em;
-    font-weight: 600;
+    background: linear-gradient(90deg, #00aaff, #005fbb);
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 700;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: background 0.3s ease;
     text-align: left;
-    box-shadow: 0 0 10px rgba(0, 175, 255, 0.2);
+    box-shadow: 0 0 15px #00aaff;
 }
 
 .new-chat-button:hover {
-    background: rgba(0, 175, 255, 0.25);
-    box-shadow: 0 0 15px rgba(0, 175, 255, 0.4);
+    background: linear-gradient(90deg, #005fbb, #00aaff);
 }
 
 .new-chat-button .fas {
@@ -316,44 +316,48 @@ body {
     display: flex;
     padding: 20px;
     border-top: 1px solid rgba(0, 191, 255, 0.1);
-    background-color: #10102a;
-    box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 30px rgba(0, 170, 255, 0.5);
 }
 
 .chat-input-form input {
     flex-grow: 1;
-    padding: 15px 20px;
-    border: 1px solid #1a1a2e;
-    border-radius: 25px;
-    background-color: #1a1a2e;
-    color: #e0e0e0;
-    font-size: 1em;
-    transition: border-color 0.3s, box-shadow 0.3s;
+    padding: 14px 15px;
+    border: none;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    font-size: 1rem;
+    outline: none;
+    box-shadow: 0 0 8px rgba(0, 170, 255, 0.5);
+    transition: box-shadow 0.3s ease;
+}
+
+.chat-input-form input::placeholder {
+    color: #cce7ff;
 }
 
 .chat-input-form input:focus {
-    outline: none;
-    border-color: #00bfff;
-    box-shadow: 0 0 8px rgba(0, 191, 255, 0.5);
+    box-shadow: 0 0 12px #00aaff;
+    background: rgba(255, 255, 255, 0.25);
 }
 
 .chat-input-form button {
     margin-left: 10px;
-    width: 50px;
-    height: 50px;
+    padding: 14px 28px;
     border: none;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #0099ff, #0055ff);
+    border-radius: 8px;
+    background: linear-gradient(90deg, #00aaff, #005fbb);
     color: white;
-    font-size: 1.1em;
+    font-weight: 700;
+    font-size: 1.1rem;
     cursor: pointer;
-    transition: background 0.3s, transform 0.2s;
-    box-shadow: 0 4px 12px rgba(0, 100, 255, 0.4);
+    box-shadow: 0 0 15px #00aaff;
+    transition: background 0.3s ease;
 }
 
 .chat-input-form button:hover:not(:disabled) {
-    background: linear-gradient(135deg, #00aaff, #0066ff);
-    transform: translateY(-1px);
+    background: linear-gradient(90deg, #005fbb, #00aaff);
 }
 
 .chat-input-form button:disabled {
@@ -361,6 +365,31 @@ body {
     cursor: not-allowed;
     opacity: 0.6;
     box-shadow: none;
+}
+
+/* Sidebar Logout Button */
+.sidebar-logout-button {
+    width: 90%;
+    padding: 14px 20px;
+    margin: 20px auto 0 auto;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(90deg, #00aaff, #005fbb);
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    text-align: left;
+    box-shadow: 0 0 15px #00aaff;
+}
+
+.sidebar-logout-button:hover {
+    background: linear-gradient(90deg, #005fbb, #00aaff);
+}
+
+.sidebar-logout-button .fas {
+    margin-right: 10px;
 }
 
 /* Upload Status Bar */

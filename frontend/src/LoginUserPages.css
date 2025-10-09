@@ -1,0 +1,156 @@
+.login-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: white;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.login-header {
+  margin-bottom: 40px;
+}
+
+.login-header .logo h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #00aaff;
+  text-shadow: 0 0 10px #00aaff;
+}
+
+.login-form-container {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 40px 50px;
+  border-radius: 12px;
+  box-shadow: 0 0 30px rgba(0, 170, 255, 0.5);
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.login-form-container h2 {
+  margin-bottom: 30px;
+  font-weight: 600;
+  font-size: 1.8rem;
+  color: #00aaff;
+  text-align: center;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.input-field {
+  margin-bottom: 20px;
+}
+
+.input-field input {
+  width: 100%;
+  padding: 14px 15px;
+  border-radius: 6px;
+  border: none;
+  font-size: 1rem;
+  outline: none;
+  box-shadow: 0 0 8px rgba(0, 170, 255, 0.5);
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  transition: box-shadow 0.3s ease;
+}
+
+.input-field input::placeholder {
+  color: #cce7ff;
+}
+
+.input-field input:focus {
+  box-shadow: 0 0 12px #00aaff;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.error-message {
+  color: #ff4d4d;
+  font-weight: 600;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.sign-in-button {
+  background: linear-gradient(90deg, #00aaff, #005fbb);
+  border: none;
+  padding: 14px 0;
+  border-radius: 8px;
+  color: white;
+  font-weight: 700;
+  font-size: 1.1rem;
+  cursor: pointer;
+  box-shadow: 0 0 15px #00aaff;
+  transition: background 0.3s ease;
+}
+
+.sign-in-button:hover {
+  background: linear-gradient(90deg, #005fbb, #00aaff);
+}
+
+.forgot-link {
+  margin-top: 20px;
+  text-align: center;
+  color: #99ccff;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.forgot-link:hover {
+  color: #00aaff;
+}
+
+/* User Page Styles */
+.user-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: white;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.user-page h2 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #00aaff;
+  text-shadow: 0 0 10px #00aaff;
+  margin-bottom: 20px;
+}
+
+.user-page p {
+  font-size: 1.2rem;
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.logout-button {
+  background: linear-gradient(90deg, #00aaff, #005fbb);
+  border: none;
+  padding: 14px 28px;
+  border-radius: 8px;
+  color: white;
+  font-weight: 700;
+  font-size: 1.1rem;
+  cursor: pointer;
+  box-shadow: 0 0 15px #00aaff;
+  transition: background 0.3s ease;
+}
+
+.logout-button:hover {
+  background: linear-gradient(90deg, #005fbb, #00aaff);
+}
