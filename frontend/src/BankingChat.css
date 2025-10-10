@@ -74,58 +74,69 @@ body {
     margin: 0 auto 20px auto;
     border: none;
     border-radius: 8px;
-    background: linear-gradient(90deg, #00aaff, #005fbb);
+    background: linear-gradient(90deg, #1e6ff7, #00e5ff);
     color: white;
     font-size: 1.1rem;
     font-weight: 700;
     cursor: pointer;
-    transition: background 0.3s ease;
+    transition: background 0.3s ease, transform 0.2s ease;
     text-align: left;
-    box-shadow: 0 0 15px #00aaff;
+    box-shadow: 0 0 15px #00e5ff;
 }
 
 .new-chat-button:hover {
-    background: linear-gradient(90deg, #005fbb, #00aaff);
+    background: linear-gradient(90deg, #00e5ff, #1e6ff7);
+    transform: scale(1.02);
 }
 
 .new-chat-button .fas {
     margin-right: 10px;
 }
 
-/* Upload Section */
-.upload-section {
-    padding: 10px 20px;
+/* Attachments Display */
+.attachments-display {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
     gap: 10px;
-    margin-bottom: 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 10px 20px;
+    border-top: 1px solid rgba(0, 191, 255, 0.1);
 }
 
-.upload-label {
-    display: block;
-    padding: 8px 10px;
+.attachment-item {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 5px 10px;
     border-radius: 5px;
-    cursor: pointer;
     font-size: 0.9em;
-    font-weight: 500;
-    transition: background-color 0.3s;
-    text-align: center;
-    border: 1px dashed rgba(0, 191, 255, 0.3);
+    color: white;
 }
 
-.pdf-upload { background-color: rgba(189, 21, 21, 0.1); color: #ff5555; }
-.pdf-upload:hover { background-color: rgba(189, 21, 21, 0.2); }
-
-.error-upload { background-color: rgba(255, 165, 0, 0.1); color: #ffaa00; }
-.error-upload:hover { background-color: rgba(255, 165, 0, 0.2); }
-
-.upload-label input[type="file"] {
-    display: none;
+.attachment-item i {
+    margin-right: 5px;
+    color: #00bfff;
 }
 
-.upload-label .fas {
-    margin-right: 8px;
+.file-name {
+    margin-right: 5px;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.remove-file {
+    background: none;
+    border: none;
+    color: #ff5555;
+    cursor: pointer;
+    font-size: 1.2em;
+    padding: 0;
+    margin-left: 5px;
+}
+
+.remove-file:hover {
+    color: #ff7777;
 }
 
 
@@ -314,10 +325,34 @@ body {
 /* Chat Input Form */
 .chat-input-form {
     display: flex;
+    align-items: center;
+    gap: 10px;
     padding: 20px;
     border-top: 1px solid rgba(0, 191, 255, 0.1);
     background: rgba(255, 255, 255, 0.1);
     box-shadow: 0 0 30px rgba(0, 170, 255, 0.5);
+}
+
+.attach-button {
+    padding: 14px;
+    background: none;
+    border: none;
+    color: #00bfff;
+    cursor: pointer;
+    font-size: 1.1rem;
+    border-radius: 6px;
+    transition: color 0.3s ease, background-color 0.3s ease;
+    flex-shrink: 0;
+}
+
+.attach-button:hover:not(:disabled) {
+    color: #00e5ff;
+    background: rgba(0, 191, 255, 0.1);
+}
+
+.attach-button:disabled {
+    color: #666;
+    cursor: not-allowed;
 }
 
 .chat-input-form input {
@@ -342,25 +377,26 @@ body {
     background: rgba(255, 255, 255, 0.25);
 }
 
-.chat-input-form button {
-    margin-left: 10px;
+.chat-input-form button[type="submit"] {
     padding: 14px 28px;
     border: none;
     border-radius: 8px;
-    background: linear-gradient(90deg, #00aaff, #005fbb);
+    background: linear-gradient(90deg, #1e6ff7, #00e5ff);
     color: white;
     font-weight: 700;
     font-size: 1.1rem;
     cursor: pointer;
-    box-shadow: 0 0 15px #00aaff;
-    transition: background 0.3s ease;
+    box-shadow: 0 0 15px #00e5ff;
+    transition: background 0.3s ease, transform 0.2s ease;
+    flex-shrink: 0;
 }
 
-.chat-input-form button:hover:not(:disabled) {
-    background: linear-gradient(90deg, #005fbb, #00aaff);
+.chat-input-form button[type="submit"]:hover:not(:disabled) {
+    background: linear-gradient(90deg, #00e5ff, #1e6ff7);
+    transform: scale(1.02);
 }
 
-.chat-input-form button:disabled {
+.chat-input-form button[type="submit"]:disabled {
     background: #333;
     cursor: not-allowed;
     opacity: 0.6;
@@ -374,18 +410,19 @@ body {
     margin: 20px auto 0 auto;
     border: none;
     border-radius: 8px;
-    background: linear-gradient(90deg, #00aaff, #005fbb);
+    background: linear-gradient(90deg, #1e6ff7, #00e5ff);
     color: white;
     font-size: 1.1rem;
     font-weight: 700;
     cursor: pointer;
-    transition: background 0.3s ease;
+    transition: background 0.3s ease, transform 0.2s ease;
     text-align: left;
-    box-shadow: 0 0 15px #00aaff;
+    box-shadow: 0 0 15px #00e5ff;
 }
 
 .sidebar-logout-button:hover {
-    background: linear-gradient(90deg, #005fbb, #00aaff);
+    background: linear-gradient(90deg, #00e5ff, #1e6ff7);
+    transform: scale(1.02);
 }
 
 .sidebar-logout-button .fas {

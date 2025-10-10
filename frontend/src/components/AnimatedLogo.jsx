@@ -1,0 +1,105 @@
+import React from "react";
+
+export default function AnimatedLogo() {
+  return (
+    <div className="flex items-center gap-2">
+      <style>{`
+        @keyframes arrowInTop {
+          0% { transform: rotate(-180deg) translateY(-40px); opacity: 0; }
+          60% { transform: rotate(15deg) translateY(5px); opacity: 1; }
+          100% { transform: rotate(0deg) translateY(0); opacity: 1; }
+        }
+
+        @keyframes arrowInBottom {
+          0% { transform: rotate(180deg) translateY(40px); opacity: 0; }
+          60% { transform: rotate(-15deg) translateY(-5px); opacity: 1; }
+          100% { transform: rotate(0deg) translateY(0); opacity: 1; }
+        }
+
+        @keyframes drawTop {
+          to { stroke-dashoffset: 0; }
+        }
+
+        @keyframes drawBottom {
+          to { stroke-dashoffset: 0; }
+        }
+
+        @keyframes logoGlow {
+          0% { filter: drop-shadow(0 0 0px rgba(0, 195, 255, 0)); }
+          50% { filter: drop-shadow(0 0 10px rgba(0, 195, 255, 0.8)); }
+          100% { filter: drop-shadow(0 0 0px rgba(0, 195, 255, 0)); }
+        }
+        @keyframes logoGlowPulse {
+          0% { filter: drop-shadow(0 0 0px rgba(0, 195, 255, 0)); }
+          50% { filter: drop-shadow(0 0 8px rgba(0, 195, 255, 0.4)); }
+          100% { filter: drop-shadow(0 0 0px rgba(0, 195, 255, 0)); }
+        }
+
+        @keyframes textReveal {
+          0% { opacity: 0; transform: translateX(20px); }
+          70% { opacity: 1; transform: translateX(0); }
+          100% { opacity: 1; transform: translateX(0); }
+        }
+
+        .b-shape {
+          animation: logoGlowPulse 3s ease-in-out 0s infinite;
+        }
+        .arrow-top {
+          animation: arrowInTop 1.6s ease-out forwards, drawTop 1.6s ease-out forwards;
+        }
+        .arrow-bottom {
+          animation: arrowInBottom 1.6s ease-out forwards, drawBottom 1.6s ease-out forwards;
+        }
+        .text-connect {
+          animation: textReveal 1.5s ease-out 0.5s forwards;
+        }
+      `}</style>
+
+      {/* SVG "B" Shape */}
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 120 120"
+        width="70"
+        height="70"
+        className="b-shape"
+        
+      >
+        {/* Top arrow */}
+        <path
+          className="arrow-top"
+          d="M60 15 h20 a20 20 0 0 1 0 40 h-20 l15-15 -15-15Z"
+          fill="url(#grad1)"
+          stroke="url(#grad1)"
+          stroke-width="3"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-dasharray="200"
+          stroke-dashoffset="200"
+        />
+        {/* Bottom arrow */}
+        <path
+          className="arrow-bottom"
+          d="M60 65 h20 a20 20 0 0 1 0 40 h-20 l15-15 -15-15Z"
+          fill="url(#grad1)"
+          stroke="url(#grad1)"
+          stroke-width="3"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-dasharray="200"
+          stroke-dashoffset="200"
+        />
+        <defs>
+          <linearGradient id="grad1" x1="0" x2="1" y1="0" y2="1">
+            <stop offset="0%" stopColor="#1e6ff7" />
+            <stop offset="100%" stopColor="#00e5ff" />
+          </linearGradient>
+        </defs>
+      </svg>
+
+      {/* Text */}
+      <h1 className="text-2xl font-bold text-white tracking-wide opacity-0 text-connect">
+        Banking<br/> Connect 
+      </h1>
+    </div>
+  );
+}

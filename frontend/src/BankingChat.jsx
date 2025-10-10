@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import BankingLogo from './components/BankingLogo';
 import ChatMessage from './components/ChatMessage';
 import { v4 as uuidv4 } from 'uuid';
-import './LoginUserPages.css';
+import './BankingChat.css';
 
 const API_BASE_URL = 'http://127.0.0.1:8000';
 
@@ -13,8 +13,10 @@ function BankingChat({ onLogout }) {
   const [sessions, setSessions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [uploadMessage, setUploadMessage] = useState({ type: '', text: '' });
-  
+  const [selectedFiles, setSelectedFiles] = useState([]);
+
   const chatEndRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   // --- Utility Functions ---
 
@@ -61,9 +63,10 @@ function BankingChat({ onLogout }) {
     const userQuestion = message.trim();
     setMessage('');
     setIsLoading(true);
+    setSelectedFiles([]); // Clear attachments after sending
 
     const sessionId = currentSessionId || uuidv4();
-    
+
     // Add user message immediately
     const newUserMessage = { role: 'user', content: userQuestion };
     setChatHistory(prev => [...prev, newUserMessage]);
@@ -79,11 +82,11 @@ function BankingChat({ onLogout }) {
       if (!response.ok) throw new Error('Network response was not ok');
 
       const data = await response.json();
-      
+
       setChatHistory(data.history);
       setCurrentSessionId(data.session_id);
       fetchSessions(); // Update sidebar with new session/message
-      
+
     } catch (error) {
       console.error("Error sending message:", error);
       const errorMessage = { role: 'assistant', content: 'Sorry, I am currently unable to connect to the AI service.' };
@@ -97,11 +100,40 @@ function BankingChat({ onLogout }) {
     setCurrentSessionId(uuidv4());
     setChatHistory([]);
     setMessage('');
+    setSelectedFiles([]);
   };
 
   const switchSession = (session) => {
     setCurrentSessionId(session.session_id);
     setChatHistory(session.messages);
+    setSelectedFiles([]);
+  };
+
+  const handleFileSelect = (e) => {
+    const files = Array.from(e.target.files);
+    setSelectedFiles(prev => [...prev, ...files]);
+
+    // Upload all files immediately upon selection
+    if (files.length > 0) {
+      handleFileUpload({ target: { files: files } }, 'pdf');
+    }
+  };
+
+  const handleRemoveFile = (index) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const getFileIcon = (fileName) => {
+    const ext = fileName.split('.').pop().toLowerCase();
+    switch (ext) {
+      case 'pdf': return 'fas fa-file-pdf';
+      case 'json': return 'fas fa-file-code';
+      case 'xls':
+      case 'xlsx': return 'fas fa-file-excel';
+      case 'doc':
+      case 'docx': return 'fas fa-file-word';
+      default: return 'fas fa-file';
+    }
   };
 
   const handleFileUpload = async (e, type) => {
@@ -148,28 +180,6 @@ function BankingChat({ onLogout }) {
       <button className="new-chat-button" onClick={startNewChat}>
         <i className="fas fa-plus"></i> New Chat
       </button>
-      
-      {/* File Uploads */}
-      <div className="upload-section">
-        <label className="upload-label pdf-upload">
-          <input
-            type="file"
-            accept=".pdf,.xls,.xlsx,.doc,.docx"
-            multiple
-            onChange={(e) => handleFileUpload(e, 'pdf')}
-          />
-          <i className="fas fa-file-pdf"></i> Upload Banking PDFs
-        </label>
-        <label className="upload-label error-upload">
-          <input 
-            type="file" 
-            accept=".json" 
-            multiple 
-            onChange={(e) => handleFileUpload(e, 'error')} 
-          />
-          <i className="fas fa-bug"></i> Upload Error JSONs
-        </label>
-      </div>
 
       {/* Chat History */}
       <div className="chat-history-list">
@@ -224,7 +234,33 @@ function BankingChat({ onLogout }) {
         </div>
       )}
 
+      {selectedFiles.length > 0 && (
+        <div className="attachments-display">
+          {selectedFiles.map((file, index) => (
+            <div key={index} className="attachment-item">
+              <i className={getFileIcon(file.name)}></i>
+              <span className="file-name">{file.name}</span>
+              <button
+                type="button"
+                className="remove-file"
+                onClick={() => handleRemoveFile(index)}
+              >
+                ×
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
       <form className="chat-input-form" onSubmit={handleSendMessage}>
+        <button
+          type="button"
+          className="attach-button"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={isLoading}
+        >
+          <i className="fas fa-paperclip"></i>
+        </button>
         <input
           type="text"
           value={message}
@@ -232,10 +268,19 @@ function BankingChat({ onLogout }) {
           placeholder="Ask a banking-related question..."
           disabled={isLoading}
         />
-        <button type="submit" disabled={!message.trim() || isLoading}>
+        <button type="submit" disabled={(!message.trim() && selectedFiles.length === 0) || isLoading}>
           <i className={`fas ${isLoading ? 'fa-spinner fa-spin' : 'fa-paper-plane'}`}></i>
         </button>
       </form>
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        accept=".pdf,.json,.xls,.xlsx,.doc,.docx"
+        onChange={handleFileSelect}
+        style={{ display: 'none' }}
+      />
     </div>
   );
 

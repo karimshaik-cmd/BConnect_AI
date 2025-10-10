@@ -1,11 +1,6 @@
-# TODO: Update Banking Chatbot to Support Excel and Word Document Uploads
+# TODO: Update BankingChat UI to ChatGPT-style Attach
 
 ## Tasks
-- [x] Update backend/requirements.txt: Add unstructured[local-inference] for Excel and Word loaders
-- [x] Update backend/ingest_pdf.py: Extend ingest_pdfs_to_chroma to handle .xls, .xlsx, .doc, .docx
-- [x] Update backend/server.py: Modify /upload-pdfs endpoint to accept Excel and Word files
-- [x] Update frontend/src/BankingChat.jsx: Update accept attribute for banking upload
-- [x] Install new dependencies
-- [x] Test uploads for PDF, Excel, Word files
-- [x] Verify ingestion and vector store reloading
-- [x] Ensure no impact on JSON error uploads
+- [x] Update BankingChat.jsx: Add selectedFiles state, add attach button in chat-input-form, add attachments display below input, modify handleSendMessage to upload files before sending message, remove upload-section from sidebar.
+- [x] Update BankingChat.css: Add styles for attach button, attachments container, individual attachment items.
+- [x] Test the UI to ensure it resembles ChatGPT's attach feature without breaking existing functionality.
