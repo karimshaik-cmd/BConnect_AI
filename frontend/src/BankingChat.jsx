@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import BankingLogo from './components/BankingLogo';
+import SidebarLogo from './components/SidebarLogo';
 import ChatMessage from './components/ChatMessage';
 import { v4 as uuidv4 } from 'uuid';
 import './BankingChat.css';
 
 const API_BASE_URL = 'http://127.0.0.1:8000';
 
-function BankingChat({ onLogout }) {
+function BankingChat({ onLogout, userType }) {
   const [currentSessionId, setCurrentSessionId] = useState(null);
   const [message, setMessage] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
@@ -14,6 +14,7 @@ function BankingChat({ onLogout }) {
   const [isLoading, setIsLoading] = useState(false);
   const [uploadMessage, setUploadMessage] = useState({ type: '', text: '' });
   const [selectedFiles, setSelectedFiles] = useState([]);
+  const [showMenuId, setShowMenuId] = useState(null);
 
   const chatEndRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -32,7 +33,7 @@ function BankingChat({ onLogout }) {
 
   const fetchSessions = useCallback(async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/sessions`);
+      const response = await fetch(`${API_BASE_URL}/sessions?user_type=${userType}`);
       if (!response.ok) throw new Error('Failed to fetch sessions');
       const data = await response.json();
       setSessions(data);
@@ -48,13 +49,24 @@ function BankingChat({ onLogout }) {
     } catch (error) {
       console.error("Error fetching sessions:", error);
     }
-  }, [currentSessionId]);
+  }, [currentSessionId, userType]);
 
   useEffect(() => {
     fetchSessions();
   }, [fetchSessions]);
 
   useEffect(scrollToBottom, [chatHistory]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showMenuId !== null && !event.target.closest('.history-item')) {
+        setShowMenuId(null);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [showMenuId]);
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
@@ -76,7 +88,7 @@ function BankingChat({ onLogout }) {
       const response = await fetch(`${API_BASE_URL}/ask`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: userQuestion, session_id: sessionId }),
+        body: JSON.stringify({ question: userQuestion, session_id: sessionId, user_type: userType }),
       });
 
       if (!response.ok) throw new Error('Network response was not ok');
@@ -107,6 +119,63 @@ function BankingChat({ onLogout }) {
     setCurrentSessionId(session.session_id);
     setChatHistory(session.messages);
     setSelectedFiles([]);
+  };
+
+  const [editingSessionId, setEditingSessionId] = useState(null);
+  const [editedName, setEditedName] = useState('');
+
+  const deleteSession = async (sessionId) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/sessions/${sessionId}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) throw new Error('Failed to delete session');
+      // Refetch sessions
+      await fetchSessions();
+      // If deleted session was current, start new chat
+      if (sessionId === currentSessionId) {
+        startNewChat();
+      }
+    } catch (error) {
+      console.error("Error deleting session:", error);
+    }
+  };
+
+  const renameSession = async (sessionId, newName) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/sessions/${sessionId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newName }),
+      });
+      if (!response.ok) throw new Error('Failed to rename session');
+      await fetchSessions();
+      setEditingSessionId(null);
+      setEditedName('');
+    } catch (error) {
+      console.error("Error renaming session:", error);
+    }
+  };
+
+  const archiveSession = async (sessionId) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/sessions/${sessionId}/archive`, {
+        method: 'POST',
+      });
+      if (!response.ok) throw new Error('Failed to archive session');
+      await fetchSessions();
+    } catch (error) {
+      console.error("Error archiving session:", error);
+    }
+  };
+
+  const shareSession = (sessionId) => {
+    const shareUrl = `${window.location.origin}/share/${sessionId}`;
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      alert('Share link copied to clipboard!');
+    }).catch(() => {
+      prompt('Share this link:', shareUrl);
+    });
   };
 
   const handleFileSelect = (e) => {
@@ -172,8 +241,7 @@ function BankingChat({ onLogout }) {
   const renderSidebar = () => (
     <div className="sidebar">
       <div className="sidebar-header">
-        <BankingLogo />
-        <h2 className="title-text">BCONNECT AI</h2>
+        <SidebarLogo />
       </div>
 
       {/* New Chat Button */}
@@ -188,10 +256,99 @@ function BankingChat({ onLogout }) {
           <div
             key={session.session_id}
             className={`history-item ${session.session_id === currentSessionId ? 'active' : ''}`}
-            onClick={() => switchSession(session)}
           >
-            <i className="fas fa-comment-dots"></i>
-            {session.name || 'New Chat'}
+            <span onClick={() => switchSession(session)} style={{ flex: 1, cursor: 'pointer' }}>
+              <i className="fas fa-comment-dots"></i>
+              {session.name || 'New Chat'}
+            </span>
+            <button
+              className="menu-button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowMenuId(showMenuId === session.session_id ? null : session.session_id);
+              }}
+              title="More options"
+            >
+              <i className="fas fa-ellipsis-h"></i>
+            </button>
+            {showMenuId === session.session_id && (
+              <div className="session-menu">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    shareSession(session.session_id);
+                    setShowMenuId(null);
+                  }}
+                  className="menu-item"
+                >
+                  <i className="fas fa-share"></i> Share
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setEditingSessionId(session.session_id);
+                    setEditedName(session.name || '');
+                    setShowMenuId(null);
+                  }}
+                  className="menu-item"
+                >
+                  <i className="fas fa-edit"></i> Rename
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    archiveSession(session.session_id);
+                    setShowMenuId(null);
+                  }}
+                  className="menu-item"
+                >
+                  <i className="fas fa-archive"></i> Archive
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    deleteSession(session.session_id);
+                    setShowMenuId(null);
+                  }}
+                  className="menu-item delete-menu-item"
+                >
+                  <i className="fas fa-trash"></i> Delete
+                </button>
+              </div>
+            )}
+            {editingSessionId === session.session_id && (
+              <div className="session-menu">
+                <input
+                  type="text"
+                  value={editedName}
+                  onChange={(e) => setEditedName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      renameSession(session.session_id, editedName.trim() || 'New Chat');
+                    }
+                  }}
+                  autoFocus
+                  style={{ width: '100%', padding: '8px', border: 'none', background: 'rgba(255,255,255,0.1)', color: 'white' }}
+                />
+                <button
+                  onClick={() => {
+                    renameSession(session.session_id, editedName.trim() || 'New Chat');
+                  }}
+                  className="menu-item"
+                >
+                  <i className="fas fa-check"></i> Save
+                </button>
+                <button
+                  onClick={() => {
+                    setEditingSessionId(null);
+                    setEditedName('');
+                  }}
+                  className="menu-item"
+                >
+                  <i className="fas fa-times"></i> Cancel
+                </button>
+              </div>
+            )}
           </div>
         ))}
       </div>

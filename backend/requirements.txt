@@ -13,3 +13,5 @@ sentence-transformers
 llama-cpp-python  # Requires pre-compilation or specific installation, see setup notes
 numpy
 unstructured[local-inference]
+pandas
+tabulate

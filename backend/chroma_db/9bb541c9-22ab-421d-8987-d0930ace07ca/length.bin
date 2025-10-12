@@ -1,0 +1,12 @@
+Sheet: Sheet1, Field Path: errCode, Source: yes.xlsx
+Structured JSON for errCode:
+{
+  "Level 2": "errCode",
+  "Required Optional": "Optional",
+  "Type": "ENUM",
+  "Data type": "ENUM",
+  "RegExEnum": "As per error code list",
+  "Comments": "error code"
+}
+
+Natural Summary: Field Path: errCode, Required Optional: Optional, Type: ENUM, Data type: ENUM, RegExEnum: As per error code list, Comments: erro

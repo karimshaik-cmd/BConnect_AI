@@ -24,31 +24,28 @@ body {
 .sidebar {
     width: 300px;
     min-width: 280px;
-    background: rgba(255, 255, 255, 0.05);
+    background: #343541;
     padding: 20px 0;
     display: flex;
     flex-direction: column;
+    color: white;
 }
 
 .sidebar-header {
     display: flex;
     align-items: center;
     padding: 0 20px 20px 20px;
-    border-bottom: 1px solid rgba(0, 170, 255, 0.5);
     margin-bottom: 20px;
-    background: linear-gradient(90deg, #005fbb, #00aaff);
-    border-radius: 8px;
-    box-shadow: 0 0 15px #00aaff;
 }
 
 .sidebar-header .banking-logo-container {
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     margin: 0;
 }
 
 .sidebar-header .banking-logo-svg {
-    transform: scale(0.33); /* Scale down the logo for the sidebar */
+    transform: scale(0.25); /* Scale down the logo for the sidebar */
     transform-origin: top left;
     box-shadow: none; /* Reduce excessive glow in sidebar */
     background: none;
@@ -59,38 +56,37 @@ body {
 }
 
 .sidebar-header .title-text {
-    font-size: 1.5em;
-    font-weight: 700;
+    font-size: 1.2em;
+    font-weight: 600;
     color: #fff;
-    margin-left: 20px;
-    letter-spacing: 1px;
-    text-shadow: 0 0 5px rgba(0, 191, 255, 0.4);
+    margin-left: 12px;
+    letter-spacing: 0.5px;
 }
 
 /* New Chat Button */
 .new-chat-button {
     width: 90%;
-    padding: 14px 20px;
+    padding: 12px 16px;
     margin: 0 auto 20px auto;
     border: none;
-    border-radius: 8px;
-    background: linear-gradient(90deg, #1e6ff7, #00e5ff);
-    color: white;
-    font-size: 1.1rem;
-    font-weight: 700;
+    border-radius: 6px;
+    background: white;
+    color: #343541;
+    font-size: 1rem;
+    font-weight: 500;
     cursor: pointer;
-    transition: background 0.3s ease, transform 0.2s ease;
+    transition: background 0.2s ease;
     text-align: left;
-    box-shadow: 0 0 15px #00e5ff;
+    display: flex;
+    align-items: center;
 }
 
 .new-chat-button:hover {
-    background: linear-gradient(90deg, #00e5ff, #1e6ff7);
-    transform: scale(1.02);
+    background: #f0f0f0;
 }
 
 .new-chat-button .fas {
-    margin-right: 10px;
+    margin-right: 8px;
 }
 
 /* Attachments Display */
@@ -144,47 +140,122 @@ body {
 .chat-history-list {
     flex-grow: 1;
     overflow-y: auto;
+    overflow-x: visible;
     padding: 0 20px;
 }
 
 .chat-history-list h3 {
     margin: 0 0 15px 0;
-    font-size: 1.1em;
-    color: #00bfff;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    font-size: 1rem;
+    color: #fff;
+    font-weight: 500;
 }
 
 .history-item {
-    padding: 10px 15px;
-    margin-bottom: 8px;
-    border-radius: 5px;
+    padding: 10px 12px;
+    margin-bottom: 4px;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 0.95em;
+    font-size: 0.9em;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    position: relative;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.history-item span {
+    flex: 1;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    transition: background-color 0.2s, box-shadow 0.2s;
     display: flex;
     align-items: center;
+    color: #e0e0e0;
 }
 
 .history-item:hover {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.menu-button {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #ccc;
+    cursor: pointer;
+    font-size: 0.9em;
+    padding: 4px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 2;
+}
+
+.history-item:hover .menu-button {
+    opacity: 1;
+}
+
+.menu-button:hover {
+    color: #fff;
+}
+
+.session-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: #2a2b32;
+    border: 1px solid #565869;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    min-width: 120px;
+    z-index: 9999;
+    overflow: hidden;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    background: none;
+    border: none;
+    color: #e0e0e0;
+    cursor: pointer;
+    font-size: 0.85em;
+    width: 100%;
+    text-align: left;
+    transition: background-color 0.2s;
+}
+
+.menu-item:hover {
+    background-color: #40414f;
+}
+
+.delete-menu-item {
+    color: #ff6b6b;
+}
+
+.delete-menu-item:hover {
+    background-color: rgba(255, 107, 107, 0.1);
+    color: #ff6b6b;
+}
+
+.menu-item i {
+    margin-right: 8px;
+    width: 14px;
 }
 
 .history-item.active {
-    background-color: #003366;
+    background-color: #2a2b32;
     color: #fff;
-    font-weight: 600;
-    border-left: 3px solid #00bfff;
-    padding-left: 12px;
-    box-shadow: 0 0 8px rgba(0, 191, 255, 0.3);
 }
 
 .history-item .fas {
-    margin-right: 10px;
-    font-size: 0.9em;
+    margin-right: 8px;
+    font-size: 0.85em;
+    color: #8e8ea0;
 }
 
 /* --- 2. Main Chat Area Styles --- */
@@ -406,27 +477,27 @@ body {
 /* Sidebar Logout Button */
 .sidebar-logout-button {
     width: 90%;
-    padding: 14px 20px;
+    padding: 12px 16px;
     margin: 20px auto 0 auto;
     border: none;
-    border-radius: 8px;
-    background: linear-gradient(90deg, #1e6ff7, #00e5ff);
-    color: white;
-    font-size: 1.1rem;
-    font-weight: 700;
+    border-radius: 6px;
+    background: white;
+    color: #343541;
+    font-size: 1rem;
+    font-weight: 500;
     cursor: pointer;
-    transition: background 0.3s ease, transform 0.2s ease;
+    transition: background 0.2s ease;
     text-align: left;
-    box-shadow: 0 0 15px #00e5ff;
+    display: flex;
+    align-items: center;
 }
 
 .sidebar-logout-button:hover {
-    background: linear-gradient(90deg, #00e5ff, #1e6ff7);
-    transform: scale(1.02);
+    background: #f0f0f0;
 }
 
 .sidebar-logout-button .fas {
-    margin-right: 10px;
+    margin-right: 8px;
 }
 
 /* Upload Status Bar */
@@ -457,3 +528,5 @@ body {
 .upload-status-bar .fas {
     margin-right: 8px;
 }
+
+

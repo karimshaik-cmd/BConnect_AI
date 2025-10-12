@@ -1,6 +1,7 @@
-# TODO: Update BankingChat UI to ChatGPT-style Attach
+# TODO: Add Delete History Feature
 
-## Tasks
-- [x] Update BankingChat.jsx: Add selectedFiles state, add attach button in chat-input-form, add attachments display below input, modify handleSendMessage to upload files before sending message, remove upload-section from sidebar.
-- [x] Update BankingChat.css: Add styles for attach button, attachments container, individual attachment items.
-- [x] Test the UI to ensure it resembles ChatGPT's attach feature without breaking existing functionality.
+- [x] Add DELETE /sessions/{session_id} endpoint in backend/server.py
+- [x] Update frontend/src/BankingChat.jsx to add delete button in sidebar history list
+- [x] Add deleteSession function to handle API call and state update
+- [x] Test the delete functionality
+- [x] Verify existing functionality remains intact

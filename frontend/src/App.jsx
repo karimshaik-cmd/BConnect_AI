@@ -21,13 +21,13 @@ function App() {
   }
 
   if (loggedInUser === 'user') {
-    return <UserPage onLogout={handleLogout} />;
+    return <UserPage onLogout={handleLogout} userType={loggedInUser} />;
   }
 
   if (loggedInUser === 'admin') {
     return (
       <div className="App">
-        <BankingChat onLogout={handleLogout} />
+        <BankingChat onLogout={handleLogout} userType={loggedInUser} />
       </div>
     );
   }

@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function AnimatedLogo() {
+export default function AnimatedLogo({ size = 70 }) {
   return (
     <div className="flex items-center gap-2">
       <style>{`
@@ -45,13 +45,13 @@ export default function AnimatedLogo() {
           animation: logoGlowPulse 3s ease-in-out 0s infinite;
         }
         .arrow-top {
-          animation: arrowInTop 1.6s ease-out forwards, drawTop 1.6s ease-out forwards;
+          animation: arrowInTop 3s ease-out forwards, drawTop 3s ease-out forwards;
         }
         .arrow-bottom {
-          animation: arrowInBottom 1.6s ease-out forwards, drawBottom 1.6s ease-out forwards;
+          animation: arrowInBottom 3s ease-out forwards, drawBottom 5s ease-out forwards;
         }
         .text-connect {
-          animation: textReveal 1.5s ease-out 0.5s forwards;
+          animation: textReveal 3s ease-out 3s forwards;
         }
       `}</style>
 
@@ -59,10 +59,10 @@ export default function AnimatedLogo() {
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 120 120"
-        width="70"
-        height="70"
+        width={size}
+        height={size}
         className="b-shape"
-        
+
       >
         {/* Top arrow */}
         <path

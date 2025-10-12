@@ -1,3 +1,5 @@
+
+
 # server.py
 
 import os
@@ -22,8 +24,8 @@ from langchain.schema import Document
 from langchain_community.llms import LlamaCpp
 
 # Local utility imports
-from ingest_pdf import ingest_documents_to_chroma
-from ingest_errors import ingest_json_to_chroma
+from .ingest_pdf import ingest_documents_to_chroma
+from .ingest_errors import ingest_json_to_chroma
 
 # --- Configuration and Setup ---
 
@@ -43,6 +45,7 @@ logger = logging.getLogger(__name__)
 class ChatRequest(BaseModel):
     question: str
     session_id: Optional[str] = None
+    user_type: str
 
 class ChatMessage(BaseModel):
     role: str
@@ -50,6 +53,7 @@ class ChatMessage(BaseModel):
 
 class ChatHistory(BaseModel):
     session_id: str
+    user_type: str
     name: str
     messages: List[ChatMessage]
 
@@ -108,8 +112,8 @@ def get_llm():
     return LlamaCpp(
         model_path=MODEL_PATH,
         temperature=0.1,
-        max_tokens=512,
-        n_ctx=2048,
+        max_tokens=256,
+        n_ctx=4096,
         n_gpu_layers=30, # Adjust based on your GPU
         verbose=False,
     )
@@ -131,6 +135,42 @@ Context:
 {context}
 
 Question:
+{question}
+[/INST]
+"""
+
+EXCEL_TEMPLATE = """
+[[INST]
+You are a structured API specification assistant. Your job is to extract mandatory field requirements for API objects based **only** on the tabular context provided below.
+
+**CRITICAL INSTRUCTIONS:**
+1.  **NEVER REFUSE:** You **must** generate a table of required fields. If no fields are found, you must state: "No required fields found for the specified object in the uploaded document." Do not generate generic refusals like "I don't have access to the documentation."
+2.  **DATA SOURCE:** Your only source of information is the 'Context' section.
+3.  **EXTRACTION LOGIC:**
+    * **Goal:** Find all fields related to the user's query (e.g., 'reqMerchantOnboard').
+    * **Filter 1:** Include only rows where the 'Required/ Optional' column contains the value 'Required'.
+    * **Filter 2:** Include rows where the 'Required/ Optional' column contains the value 'Conditional'.
+    * **Field Path:** The full hierarchical field path (e.g., 'Head.ver' or 'Merchant.Address.city') is available in the 'Field Path' and 'Level X' columns of the context. Construct the Field Path using the components separated by a dot (.).
+
+**OUTPUT FORMAT:**
+
+**A. REQUIRED FIELDS**
+Create a Markdown table for all fields marked 'Required'.
+| Field Path | Type | Comments |
+| :--- | :--- | :--- |
+
+**B. CONDITIONAL FIELDS**
+Create a separate Markdown table for all fields marked 'Conditional'.
+| Field Path | Type | Condition |
+| :--- | :--- | :--- |
+
+Chat History:
+{history}
+
+Context (Excel Extract - Tabular data for RAG):
+{context}
+
+User Question:
 {question}
 [/INST]
 """
@@ -180,6 +220,8 @@ def load_sessions() -> Dict[str, ChatHistory]:
     # Convert raw data back to ChatHistory objects
     sessions = {}
     for session_id, history_data in data.items():
+        # Backward compatibility: add user_type if missing
+        history_data.setdefault('user_type', 'admin')  # Default for existing sessions
         try:
             sessions[session_id] = ChatHistory(**history_data)
         except Exception as e:
@@ -208,12 +250,13 @@ def get_chat_history_string(session_id: str) -> str:
     # Limit history to last 5 exchanges to save context window space
     return "\n".join(history_str[-10:])
 
-def update_chat_history(session_id: str, user_msg: str, ai_msg: str, new_session: bool = False) -> List[Dict[str, str]]:
+def update_chat_history(session_id: str, user_type: str, user_msg: str, ai_msg: str, new_session: bool = False) -> List[Dict[str, str]]:
     """Adds new messages to the session and returns the updated history list."""
     if session_id not in SESSIONS:
         session_name = user_msg[:30].strip() or "New Chat"
         SESSIONS[session_id] = ChatHistory(
             session_id=session_id,
+            user_type=user_type,
             name=session_name,
             messages=[]
         )
@@ -242,20 +285,13 @@ def check_for_pii(text: str) -> bool:
     return False
 
 def determine_prompt(question: str) -> str:
-    """Analyzes the question to select the most appropriate prompt template."""
-    q_lower = question.lower()
-    
-    # 1. Error/Support check
-    error_keywords = ["error", "issue", "bug", "fix", "troubleshoot", "failed to log", "cannot connect"]
-    if any(k in q_lower for k in error_keywords):
+    q = question.lower()
+    if any(k in q for k in ["error", "issue", "bug", "fix", "troubleshoot", "failed to log", "cannot connect"]):
         return "support"
-
-    # 2. Chit-chat check (short, non-substantive questions)
-    chit_chat_keywords = ["hello", "hi", "how are you", "what is your name", "thanks", "thank you", "bye"]
-    if len(question.split()) < 4 or any(q_lower == k for k in chit_chat_keywords):
+    if any(k in q for k in ["excel", "field", "required", "optional", "regex", "datatype", "api"]):
+        return "excel"
+    if len(q.split()) < 4 or any(q in x for x in ["hi", "hello", "thanks", "bye", "thank you"]):
         return "chit_chat"
-
-    # 3. Default to Banking prompt
     return "banking"
 
 # --- FastAPI App Initialization ---
@@ -277,10 +313,19 @@ app.add_middleware(
 # --- API Endpoints ---
 
 @app.get("/sessions", response_model=List[ChatHistory])
-def get_all_sessions():
+def get_all_sessions(user_type: str):
     """Retrieves a list of all current chat sessions for the sidebar."""
     # Convert the dictionary values to a list of ChatHistory objects
-    return list(SESSIONS.values())
+    return [s for s in SESSIONS.values() if s.user_type == user_type]
+
+@app.delete("/sessions/{session_id}")
+def delete_session(session_id: str):
+    """Deletes a specific chat session."""
+    if session_id not in SESSIONS:
+        raise HTTPException(status_code=404, detail="Session not found")
+    del SESSIONS[session_id]
+    save_sessions(SESSIONS)
+    return {"message": f"Session {session_id} deleted successfully"}
 
 @app.post("/ask", response_model=ChatResponse)
 async def ask_question(request: ChatRequest):
@@ -291,7 +336,7 @@ async def ask_question(request: ChatRequest):
     # 1. PII Detection
     if check_for_pii(question):
         ai_response = PII_SAFETY_RESPONSE
-        updated_history = update_chat_history(session_id, question, ai_response)
+        updated_history = update_chat_history(session_id, request.user_type, question, ai_response)
         return ChatResponse(session_id=session_id, answer=ai_response, history=updated_history)
         
     try:
@@ -313,16 +358,35 @@ async def ask_question(request: ChatRequest):
     elif prompt_type == "support":
         template = SUPPORT_TEMPLATE
         vectorstore = ERROR_VECTORSTORE
+    elif prompt_type == "excel":
+        template = EXCEL_TEMPLATE
+        vectorstore = BANKING_VECTORSTORE
     else: # chit_chat
         template = CHIT_CHAT_TEMPLATE
         vectorstore = None
 
+# --- server.py (Modified RAG and Invocation block) ---
+
     # 3. RAG and Invocation
-    context = "No specific banking context available."
+    context = "No relevant context found."
     if vectorstore:
-        # Retrieve relevant documents
-        docs = vectorstore.similarity_search(question, k=4)
-        context = "\n---\n".join([doc.page_content for doc in docs])
+        # --- Focused RAG for Excel Queries ---
+        # 1. Prioritize the specific API name (e.g., reqMerchantOnboard)
+        search_term = re.findall(r"(resp|req)\w+", question, re.IGNORECASE)
+        search_text = search_term[0] if search_term else question
+        
+        # RETRIEVAL CHANGE: Reduce k to 5 to minimize noise, forcing the LLM to focus on the best chunks.
+        docs = vectorstore.similarity_search(search_text, k=5) 
+        if not docs:
+            docs = vectorstore.similarity_search(question, k=5)
+
+        logger.info(f"🔍 Retrieved {len(docs)} docs for query: '{question}'")
+        for i, doc in enumerate(docs[:5]):
+            logger.info(f"[DOC {i+1}] Preview: {doc.page_content[:300]}...")
+
+        if docs:
+            # Join with a very clear separator for the LLM
+            context = "\n\n--- DOCUMENT CONTEXT START ---\n\n".join([doc.page_content for doc in docs])
 
     full_prompt = PromptTemplate.from_template(template).format(
         history=current_history_str,
@@ -330,21 +394,21 @@ async def ask_question(request: ChatRequest):
         question=question
     )
 
+
     try:
-        # LLM Invocation
         ai_response = llm.invoke(full_prompt).strip()
     except Exception as e:
-        logger.error(f"LLM invocation failed: {e}")
-        ai_response = "An error occurred while generating the response. Please try again or rephrase your question."
+        logger.error(f"❌ LLM invocation failed: {e}")
+        ai_response = "An internal error occurred while generating the response."
 
     # 4. History Update and Response
-    updated_history = update_chat_history(session_id, question, ai_response)
-    
+    updated_history = update_chat_history(session_id, request.user_type, question, ai_response)
+
     return ChatResponse(session_id=session_id, answer=ai_response, history=updated_history)
 
 @app.post("/upload-pdfs")
 async def upload_pdfs(files: List[UploadFile] = File(...)):
-    """Accepts and processes PDF, Excel, and Word files, ingesting them into the banking_docs vector store."""
+    """Accepts and processes PDF, Excel, Word, CSV, and TXT files, ingesting them into the banking_docs vector store."""
     if not BANKING_VECTORSTORE:
         raise HTTPException(status_code=503, detail="Vector store not initialized.")
 
@@ -356,7 +420,7 @@ async def upload_pdfs(files: List[UploadFile] = File(...)):
         for file in files:
             # Save file temporarily
             file_extension = os.path.splitext(file.filename)[1].lower()
-            if file_extension not in ['.pdf', '.xls', '.xlsx', '.doc', '.docx']:
+            if file_extension not in ['.pdf', '.xls', '.xlsx', '.doc', '.docx', '.csv', '.txt']:
                 logger.warning(f"Skipping unsupported file: {file.filename}")
                 continue
 
@@ -379,6 +443,53 @@ async def upload_pdfs(files: List[UploadFile] = File(...)):
         raise HTTPException(status_code=500, detail=f"Document ingestion failed: {str(e)}")
     finally:
         # Clean up temporary files and directory
+        for f in filepaths:
+            if os.path.exists(f):
+                os.remove(f)
+        if os.path.exists(temp_dir):
+            os.rmdir(temp_dir)
+
+@app.post("/upload-documents")
+async def upload_documents(files: List[UploadFile] = File(...)):
+    """
+    Accepts and processes PDF, Excel, Word, CSV, or TXT files,
+    ingesting them into the banking_docs vector store dynamically.
+    """
+    if not BANKING_VECTORSTORE:
+        raise HTTPException(status_code=503, detail="Vector store not initialized.")
+
+    logger.info(f"Received {len(files)} files for banking document ingestion.")
+    temp_dir = tempfile.mkdtemp()
+    filepaths = []
+
+    try:
+        for file in files:
+            ext = os.path.splitext(file.filename)[1].lower()
+            if ext not in ['.pdf', '.xls', '.xlsx', '.csv', '.doc', '.docx', '.txt']:
+                logger.warning(f"Skipping unsupported file: {file.filename}")
+                continue
+
+            temp_path = os.path.join(temp_dir, file.filename)
+            with open(temp_path, "wb") as f:
+                f.write(await file.read())
+            filepaths.append(temp_path)
+
+        if not filepaths:
+            return {"message": "No valid files were uploaded."}
+
+        result = ingest_documents_to_chroma(filepaths, BANKING_VECTORSTORE)
+        load_vector_stores()  # Reload to ensure new data is active
+
+        return {
+            "message": f"✅ Successfully processed {len(filepaths)} file(s).",
+            "details": result
+        }
+
+    except Exception as e:
+        logger.error(f"Document upload failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Document ingestion failed: {str(e)}")
+
+    finally:
         for f in filepaths:
             if os.path.exists(f):
                 os.remove(f)
