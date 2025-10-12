@@ -105,5 +105,103 @@
                 "content": "Hello! Good night to you as well. Is there a specific question or topic you'd like to discuss? I'm here to help with any banking-related inquiries you might have."
             }
         ]
+    },
+    "0e0e88a6-e7ae-44a0-ae5b-5392ac4d929b": {
+        "session_id": "0e0e88a6-e7ae-44a0-ae5b-5392ac4d929b",
+        "user_type": "user",
+        "name": "hi good morning can i ask you",
+        "messages": [
+            {
+                "role": "user",
+                "content": "hi good morning can i ask you something?"
+            },
+            {
+                "role": "assistant",
+                "content": "Good morning! Of course, I'd be happy to help answer any question you have to the best of my ability. Please keep in mind that I can only provide factual information based on the context provided and cannot provide opinions or make assumptions beyond what is given. If you have a specific question, please feel free to ask and I will do my best to provide an accurate and helpful response. Thank you for choosing to ask me a question! Is there something specific you would like to know?"
+            }
+        ]
+    },
+    "4cf42416-2d31-43b4-aa69-85adcc97cbb4": {
+        "session_id": "4cf42416-2d31-43b4-aa69-85adcc97cbb4",
+        "user_type": "admin",
+        "name": "good morning, can i ask u i ha",
+        "messages": [
+            {
+                "role": "user",
+                "content": "good morning, can i ask u i have a doubt"
+            },
+            {
+                "role": "assistant",
+                "content": "Good morning! Of course, you're welcome to ask your doubt. I will do my best to provide you with accurate and helpful information. If you have any specific document or context that you would like me to consider while answering your question, please let me know. I am here to assist you in the most professional, secure, and concise manner possible."
+            }
+        ]
+    },
+    "047ae9a6-3a8d-423e-8574-b07daa11741f": {
+        "session_id": "047ae9a6-3a8d-423e-8574-b07daa11741f",
+        "user_type": "admin",
+        "name": "please list the required",
+        "messages": [
+            {
+                "role": "user",
+                "content": "please list the required"
+            },
+            {
+                "role": "assistant",
+                "content": "Based on the provided context, the following fields are marked as 'Required':\n\n| Field Path | Type | Comments |\n| :--- | :--- | :--- |\n| Head.reqFetchTxnDetails.Head.ver | String | Version of the request header |\n| Head.reqFetchTxnDetails.IBS.MerchantID | String | Unique identifier for the merchant |\n| Head.reqFetchTxnDetails.IBS.MerchantName | String | Name of the merchant |\n| Head.reqGetMerchantDetails.Head.ver | String | Version of the request header |\n| Head.reqGetMerchantDetails.PA.MerchantID | String | Unique identifier for the merchant |\n| Head.reqGetMerchantDetails.PA.MerchantName | String | Name of the merchant |\n\nTherefore, the following Markdown table represents the required fields:\n\n```markdown\n| Field Path                          | Type   | Comments"
+            }
+        ]
+    },
+    "b5870e69-137f-4f21-b5a6-db1e983bf669": {
+        "session_id": "b5870e69-137f-4f21-b5a6-db1e983bf669",
+        "user_type": "admin",
+        "name": "list out all required in the g",
+        "messages": [
+            {
+                "role": "user",
+                "content": "list out all required in the given file"
+            },
+            {
+                "role": "assistant",
+                "content": "Based on the provided context, the following fields are marked as 'Required':\n\n| Field Path                  |\n|:-------------------------------|\n| reqMerchantOnboard         |\n| ts                                |\n| api                              |\n| msgID                            |\n\nTherefore, these fields must be present and populated in the given file."
+            }
+        ]
+    },
+    "2453dd2e-d973-4d53-93da-c476be7f5f2f": {
+        "session_id": "2453dd2e-d973-4d53-93da-c476be7f5f2f",
+        "user_type": "admin",
+        "name": "can you please list out all th",
+        "messages": [
+            {
+                "role": "user",
+                "content": "can you please list out all the required from this file?"
+            },
+            {
+                "role": "assistant",
+                "content": "Based on the provided context, the following fields are marked as 'Required':\n\n| Field Path | Type | Comments |\n| :--- | :--- | :--- |\n| reqMerchantOnboard | Object | API Name - Root object. |\n\nTherefore, the required field based on the user's query is 'reqMerchantOnboard'."
+            }
+        ]
+    },
+    "8df14c0e-256a-475b-8aeb-e486994bd217": {
+        "session_id": "8df14c0e-256a-475b-8aeb-e486994bd217",
+        "user_type": "admin",
+        "name": "{   \"reqMerchantOnboard\": {",
+        "messages": [
+            {
+                "role": "user",
+                "content": "{   \"reqMerchantOnboard\": {     // ----------------------------------------------------     // A. REQUIRED OBJECTS AND FIELDS     // ----------------------------------------------------     \"Head\": { // REQUIRED Object       \"ver\": \"1.0\", // REQUIRED string       \"ts\": \"2025-10-12T11:50:00Z\", // REQUIRED string       \"msgID\": \"REQ1234567890ABCDEFGHJKLMNPQRSTUV\", // REQUIRED string       \"orgID\": \"ABC01\" // REQUIRED string     },     \"Txn\": { // REQUIRED Object       \"refID\": \"ABC012025101234567890123\", // REQUIRED string     },     \"PA\": { // REQUIRED Object       \"paID\": \"XYZ99\", // REQUIRED string       \"Creds\": { // REQUIRED Object         \"type\": \"PAN\", // REQUIRED ENUM (e.g., PAN / GSTN / TAN)         \"value\": \"ABCDE1234F\" // REQUIRED string       }     },     \"Merchant\": { // REQUIRED Object       \"existMerchant\": \"TRUE\", // REQUIRED boolean (used to activate conditional fields below)              \"Identifier\": {         \"mcc\": \"5411\", // REQUIRED string (mcc code)         \"mid\": \"ABC0120253456789012\", // REQUIRED string (merchant id)                  \"merchantType\": \"SMALL\" // OPTIONAL ENUM (e.g., MICRO / SMALL / MEDIUM / LARGE)       },              // ----------------------------------------------------       // B. CONDITIONAL FIELDS       // ----------------------------------------------------       \"Ownership\": { // CONDITIONAL Object (Mandatory if existMerchant = TRUE)         \"type\": \"PROPRIETARY\" // CONDITIONAL ENUM (Mandatory if existMerchant = TRUE)       },              \"Address\": { // REQUIRED Object         \"location\": \"123 Main St\", // REQUIRED string         \"city\": \"New Delhi\", // REQUIRED string         // ... (other required fields like state, country, pincode must also be included)       },              \"SupportType\": { // REQUIRED Object         \"supportMode\": \"ONLINE\", // REQUIRED ENUM (e.g., ONLINE / OFFLINE)                  \"mURL\": \"https://www.example.com\" // CONDITIONAL string (Mandatory if supportMode = \"ONLINE\")       },              // Since existMerchant is \"TRUE\", we must include this Conditional array       \"existBankTID\": [ // CONDITIONAL Array of Object (Mandatory if existMerchant = TRUE)         {           \"bankName\": \"HDFC Bank Ltd\",           \"tid\": \"HDFC123456789\" // CONDITIONAL string (Mandatory if bankName has a value)         }       ]     },     \"Signature\": { // REQUIRED Object       \"protected\": \"...\", // REQUIRED string       \"signature\": \"...\" // REQUIRED string     },     \"Ack\": { // REQUIRED Object       \"msgID\": \"REQ1234567890ABCDEFGHJKLMNPQRSTUV\", // REQUIRED string       \"result\": \"SUCCESS\", // REQUIRED ENUM       \"ts\": \"2025-10-12T11:50:00Z\" // REQUIRED string     }   } } i have this json , in this what are the required fileds?"
+            },
+            {
+                "role": "assistant",
+                "content": "Based on the provided JSON, here are the required fields:\n\n1. `Head` object with the following required fields:\n   - `ver`: string\n   - `ts`: string\n   - `msgID`: string\n   - `orgID`: string\n2. `Txn` object with the following required field:\n   - `refID`: string\n3. `PA` object with the following required fields:\n   - `paID`: string\n   - `Creds` object with the following required fields:\n      - `type`: ENUM (e.g., PAN / GSTN / TAN)\n      - `value`: string\n4. `Signature` object with the following required fields:\n   - `protected`: string\n   - `signature`: string\n5. `Ack` object with the following required fields:\n   - `msgID`: string\n   - `result`: ENUM (e.g., SUCCESS / FAILURE)\n   - `ts`: string"
+            },
+            {
+                "role": "user",
+                "content": "{   \"reqMerchantOnboard\": {     \"Head\": {       \"ver\": \"1.0\",       \"ts\": \"2025-10-12T12:00:00Z\",       \"msgID\": \"REQ1234567890ABCDEFGHJKLMNPQRSTUV\",       \"orgID\": \"ABC01\"     },     \"Merchant\": {       \"existMerchant\": \"TRUE\",       \"Identifier\": {         \"mcc\": \"5411\",         \"mid\": \"ABC0120253456789012\"       },       \"Name\": {         \"brand\": \"Global Payments Co\",         \"legal\": \"Global Payments Private Ltd\"       },       \"Address\": {         \"location\": \"456 Commerce Tower\",         \"city\": \"Mumbai\",         \"state\": \"MH\",         \"country\": \"IND\",         \"pincode\": \"400001\"       },       \"AdditionalData\": {         \"key1\": \"valueA\",         \"key2\": \"valueB\"       }     }   } } what are the required fields of this ?"
+            },
+            {
+                "role": "assistant",
+                "content": "Based on the provided JSON, here are the required fields:\n\n1. `Head` object with the following required fields:\n   - `ver`: string\n   - `ts`: string\n   - `msgID`: string\n   - `orgID`: string\n\n2. `Merchant` object with the following required fields:\n   - `existMerchant`: boolean (must be set to \"TRUE\" if this is a merchant onboarding request)\n   - `Identifier` object with the following required fields:\n      - `mcc`: string\n      - `mid`: string\n   - `Name` object with the following required fields:\n      - `brand`: string\n      - `legal`: string\n   - `Address` object with the following required fields:\n      - `location`: string\n      - `city`: string\n      - `state`: string\n      - `country`: string\n      - `pincode`: string\n   - `AdditionalData` object (optional, but if present, must include the following required field):\n      - `key1`: string\n      - `key2`:"
+            }
+        ]
     }
 }

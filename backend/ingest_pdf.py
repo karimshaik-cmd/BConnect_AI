@@ -9,7 +9,8 @@ from langchain_community.document_loaders import (
     UnstructuredExcelLoader,
     UnstructuredWordDocumentLoader,
     TextLoader,
-    CSVLoader
+    CSVLoader,
+    JSONLoader
 )
 from langchain_chroma import Chroma
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -112,7 +113,7 @@ def dataframe_to_natural_text(df: pd.DataFrame, sheet_name: str, file_path: str)
 
 def load_document(file_path: str) -> List[Document]:
     """
-    Dynamically loads documents from multiple formats (PDF, Excel, Word, CSV, TXT).
+    Dynamically loads documents from multiple formats (PDF, Excel, Word, CSV, TXT, JSON).
     Automatically converts structured data into readable, LLM-friendly text.
     """
     ext = os.path.splitext(file_path)[1].lower()
@@ -139,7 +140,7 @@ def load_document(file_path: str) -> List[Document]:
 
         elif ext == ".csv":
             try:
-                df = pd.read_csv(file_path)
+                df = pd.read_csv(file_path, engine='python')
                 documents.extend(dataframe_to_natural_text(df, "CSV", file_path))
             except Exception as e:
                 logger.warning(f"Pandas failed for CSV {file_path}, fallback to CSVLoader: {e}")
@@ -148,6 +149,10 @@ def load_document(file_path: str) -> List[Document]:
 
         elif ext == ".txt":
             loader = TextLoader(file_path)
+            documents = loader.load()
+
+        elif ext == ".json":
+            loader = JSONLoader(file_path)
             documents = loader.load()
 
         else:
@@ -162,7 +167,7 @@ def load_document(file_path: str) -> List[Document]:
 def ingest_documents_to_chroma(file_paths: List[str], vectorstore: Chroma):
     """
     Loads, splits, and adds documents to the given Chroma vectorstore.
-    Works for PDF, Excel, Word, CSV, TXT — structured for natural Q&A.
+    Works for PDF, Excel, Word, CSV, TXT, JSON — structured for natural Q&A.
     """
     all_documents = []
 

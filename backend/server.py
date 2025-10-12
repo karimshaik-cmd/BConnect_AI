@@ -420,7 +420,7 @@ async def upload_pdfs(files: List[UploadFile] = File(...)):
         for file in files:
             # Save file temporarily
             file_extension = os.path.splitext(file.filename)[1].lower()
-            if file_extension not in ['.pdf', '.xls', '.xlsx', '.doc', '.docx', '.csv', '.txt']:
+            if file_extension not in ['.pdf', '.xls', '.xlsx', '.doc', '.docx', '.csv', '.txt', '.json']:
                 logger.warning(f"Skipping unsupported file: {file.filename}")
                 continue
 
@@ -465,7 +465,7 @@ async def upload_documents(files: List[UploadFile] = File(...)):
     try:
         for file in files:
             ext = os.path.splitext(file.filename)[1].lower()
-            if ext not in ['.pdf', '.xls', '.xlsx', '.csv', '.doc', '.docx', '.txt']:
+            if ext not in ['.pdf', '.xls', '.xlsx', '.csv', '.doc', '.docx', '.txt', '.json']:
                 logger.warning(f"Skipping unsupported file: {file.filename}")
                 continue
 
