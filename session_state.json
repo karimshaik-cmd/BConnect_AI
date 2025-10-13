@@ -121,21 +121,6 @@
             }
         ]
     },
-    "4cf42416-2d31-43b4-aa69-85adcc97cbb4": {
-        "session_id": "4cf42416-2d31-43b4-aa69-85adcc97cbb4",
-        "user_type": "admin",
-        "name": "good morning, can i ask u i ha",
-        "messages": [
-            {
-                "role": "user",
-                "content": "good morning, can i ask u i have a doubt"
-            },
-            {
-                "role": "assistant",
-                "content": "Good morning! Of course, you're welcome to ask your doubt. I will do my best to provide you with accurate and helpful information. If you have any specific document or context that you would like me to consider while answering your question, please let me know. I am here to assist you in the most professional, secure, and concise manner possible."
-            }
-        ]
-    },
     "047ae9a6-3a8d-423e-8574-b07daa11741f": {
         "session_id": "047ae9a6-3a8d-423e-8574-b07daa11741f",
         "user_type": "admin",
@@ -201,6 +186,105 @@
             {
                 "role": "assistant",
                 "content": "Based on the provided JSON, here are the required fields:\n\n1. `Head` object with the following required fields:\n   - `ver`: string\n   - `ts`: string\n   - `msgID`: string\n   - `orgID`: string\n\n2. `Merchant` object with the following required fields:\n   - `existMerchant`: boolean (must be set to \"TRUE\" if this is a merchant onboarding request)\n   - `Identifier` object with the following required fields:\n      - `mcc`: string\n      - `mid`: string\n   - `Name` object with the following required fields:\n      - `brand`: string\n      - `legal`: string\n   - `Address` object with the following required fields:\n      - `location`: string\n      - `city`: string\n      - `state`: string\n      - `country`: string\n      - `pincode`: string\n   - `AdditionalData` object (optional, but if present, must include the following required field):\n      - `key1`: string\n      - `key2`:"
+            }
+        ]
+    },
+    "596b817d-9dd8-4bc3-bd4b-4bd11cadcf67": {
+        "session_id": "596b817d-9dd8-4bc3-bd4b-4bd11cadcf67",
+        "user_type": "user",
+        "name": "hi can you please help me?",
+        "messages": [
+            {
+                "role": "user",
+                "content": "hi can you please help me?"
+            },
+            {
+                "role": "assistant",
+                "content": "Hello! Of course, I'd be happy to help you with any questions or issues you might have.\n\nIf you could please provide some more context or details about what you need help with, that would be greatly appreciated.\n\nIn the meantime, if you have any specific questions or if there is anything else I can do to assist you, please don't hesitate to ask.\n\nI hope this helps and that we can work together to resolve any issues you might have.\n\nBest regards,\n[Your Name]\nBanking Assistant"
+            }
+        ]
+    },
+    "b463d16a-8c93-4a63-86ef-f2556fca192d": {
+        "session_id": "b463d16a-8c93-4a63-86ef-f2556fca192d",
+        "user_type": "admin",
+        "name": "hi good afternoon",
+        "messages": [
+            {
+                "role": "user",
+                "content": "hi good afternoon"
+            },
+            {
+                "role": "assistant",
+                "content": "Hello! Afternoon to you as well. How may I assist you today?"
+            },
+            {
+                "role": "user",
+                "content": "can you please list out all the required fields?"
+            },
+            {
+                "role": "assistant",
+                "content": "Based on the provided context, the following field is marked as 'Required':\n\n| Field Path | Type | Comments |\n| :--- | :--- | :--- |\n| CommCharges | Object | Commission charges for the PA if Settlement.type = DIRECTTOMERCHANT / PATOMERCHANT |\n\nTherefore, the required field is 'CommCharges'."
+            },
+            {
+                "role": "user",
+                "content": "list every required"
+            },
+            {
+                "role": "assistant",
+                "content": "Based on the provided context, the following field is marked as 'Required' and belongs to the level 'CommCharges':\n\n| Field Path | Type | Comments |\n| :--- | :--- | :--- |\n| CommCharges.CommissionFee | Object | Commission fee for the PA if Settlement.type = DIRECTTOMERCHANT / PATOMERCHANT |\n\nTherefore, the required field is 'CommCharges.CommissionFee'."
+            }
+        ]
+    },
+    "b6f69d05-e0c8-49f4-baef-512dd71a4599": {
+        "session_id": "b6f69d05-e0c8-49f4-baef-512dd71a4599",
+        "user_type": "admin",
+        "name": "hi, can you please tell me all",
+        "messages": [
+            {
+                "role": "user",
+                "content": "hi, can you please tell me all required fields here?"
+            },
+            {
+                "role": "assistant",
+                "content": "Based on the provided context, the following fields are marked as 'Required':\n\n| Field Path | Type | Comments |\n| :--- | :--- | :--- |\n| reqMerchantOnboard | Object | API Name - Root object. |\n\nTherefore, all required fields for the specified object in the uploaded document are:\n\n1. reqMerchantOnboard (Object)\n\nPlease note that this analysis is based solely on the provided context and does not take into account any external factors or dependencies."
+            },
+            {
+                "role": "user",
+                "content": "WHATS BBPS"
+            },
+            {
+                "role": "assistant",
+                "content": "BBPS stands for Bilateral Banking Practice Standard. It is a set of guidelines and standards that govern the bilateral banking practices between two financial institutions. These standards cover various aspects such as account opening, fund transfers, reconciliation, and dispute resolution. The primary objective of BBPS is to streamline the banking processes, reduce operational costs, enhance customer experience, and promote greater efficiency and collaboration between banks."
+            }
+        ]
+    },
+    "e98cee26-b188-489c-883b-a3f4666a43b6": {
+        "session_id": "e98cee26-b188-489c-883b-a3f4666a43b6",
+        "user_type": "admin",
+        "name": "what is BBPS ?",
+        "messages": [
+            {
+                "role": "user",
+                "content": "what is BBPS ?"
+            },
+            {
+                "role": "assistant",
+                "content": "BBPS stands for Bill Payment System. It is an electronic funds transfer system that enables customers to make bill payments to various billers through a single interface. BBPS aims to provide convenience, efficiency, and security to customers in managing their bill payments."
+            }
+        ]
+    },
+    "b0c5e557-e42c-404d-a462-12733a220571": {
+        "session_id": "b0c5e557-e42c-404d-a462-12733a220571",
+        "user_type": "admin",
+        "name": "tell me about BHIM and BBPS",
+        "messages": [
+            {
+                "role": "user",
+                "content": "tell me about BHIM and BBPS"
+            },
+            {
+                "role": "assistant",
+                "content": "BHIM (Bharat Interface for Money) and BBPS (Bharat Bill Payment System) are two different but related initiatives by the National Payments Corporation of India (NPCI).\n\nBHIM is a Unified Payments Interface (UPI) based digital payment system that enables users to send and receive money using a virtual payment address linked to their bank account. BHIM was launched by Prime Minister Narendra Modi on December 30, 2016.\n\nBBPS, on the other hand, is a bill payment system that allows customers to pay their bills (such as electricity, water, gas, telephone, mobile, DTH, insurance premiums, mutual fund transactions, school/college fees, tax payments, etc.) through multiple modes and channels such as cash, cheque, demand draft, net banking, mobile banking, USSD, Aadhaar Enabled Payment System (AEPS), Unified Payments Interface (UPI), Quick Response (QR) code based payment, etc. BBPS was launched on January 16, 2017.\n\nBoth BHIM and BBPS are important initiatives by NPCI to promote"
             }
         ]
     }

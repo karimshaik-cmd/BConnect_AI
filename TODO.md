@@ -1,7 +1,3 @@
-# TODO: Add Delete History Feature
-
-- [x] Add DELETE /sessions/{session_id} endpoint in backend/server.py
-- [x] Update frontend/src/BankingChat.jsx to add delete button in sidebar history list
-- [x] Add deleteSession function to handle API call and state update
-- [x] Test the delete functionality
-- [x] Verify existing functionality remains intact
+- [ ] Update .button-bg background gradient in NeuralLogin.css to match logo colors (#1e6ff7 to #00e5ff)
+- [ ] Update .neural-button:hover .button-bg to darker versions of new colors
+- [ ] Update .button-glow background to new gradient
