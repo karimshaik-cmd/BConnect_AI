@@ -1,0 +1,12 @@
+Sheet: Sheet1, Field Path: actn, Source: yes.xlsx
+Structured JSON for actn:
+{
+  "Level 2": "actn",
+  "Required Optional": "Optional",
+  "Type": "ENUM",
+  "Data type": "ENUM",
+  "RegExEnum": "As per error code list",
+  "Comments": "error details"
+}
+
+Natural Summary: Field Path: actn, Required Optional: Optional, Type: ENUM, Data type: ENUM, RegExEnum: As per error code list, Comments: error details

@@ -13,6 +13,8 @@ function UserPage({ onLogout, userType }) {
   const [sessions, setSessions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showMenuId, setShowMenuId] = useState(null);
+  const [showLogoutAlert, setShowLogoutAlert] = useState(false);
+  const [showLogoutSuccess, setShowLogoutSuccess] = useState(false);
 
   const chatEndRef = useRef(null);
 
@@ -168,6 +170,23 @@ function UserPage({ onLogout, userType }) {
     });
   };
 
+  const handleLogout = () => {
+    setShowLogoutAlert(true);
+  };
+
+  const confirmLogout = () => {
+    setShowLogoutAlert(false);
+    setShowLogoutSuccess(true);
+    setTimeout(() => {
+      setShowLogoutSuccess(false);
+      onLogout();
+    }, 3200);
+  };
+
+  const cancelLogout = () => {
+    setShowLogoutAlert(false);
+  };
+
   // --- Render Components ---
 
   const renderSidebar = () => (
@@ -286,7 +305,7 @@ function UserPage({ onLogout, userType }) {
       </div>
 
       {/* Logout Button */}
-      <button className="sidebar-logout-button" onClick={onLogout}>
+      <button className="sidebar-logout-button" onClick={handleLogout}>
         <i className="fas fa-sign-out-alt"></i> Logout
       </button>
     </div>
@@ -335,6 +354,50 @@ function UserPage({ onLogout, userType }) {
     <div className="chat-app-container">
       {renderSidebar()}
       {renderMainChat()}
+
+      {/* Logout Confirmation Alert */}
+      {showLogoutAlert && (
+        <div className="logout-alert-overlay">
+          <div className="logout-alert">
+            <div className="logout-core">
+              <div className="logout-rings">
+                <div className="logout-ring"></div>
+                <div className="logout-ring"></div>
+                <div className="logout-ring"></div>
+              </div>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 15.5c-.77.833.192 2.5 1.732 2.5z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            <h3>Confirm Logout</h3>
+            <p>Are you sure you want to log out of your Banking Connect session?</p>
+            <div className="logout-alert-buttons">
+              <button className="cancel-button" onClick={cancelLogout}>Cancel</button>
+              <button className="confirm-button" onClick={confirmLogout}>Logout</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Logout Success Alert */}
+      {showLogoutSuccess && (
+        <div className="logout-alert-overlay">
+          <div className="logout-success-alert">
+            <div className="logout-core">
+              <div className="logout-rings">
+                <div className="logout-ring"></div>
+                <div className="logout-ring"></div>
+                <div className="logout-ring"></div>
+              </div>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            <h3>Logout Successful</h3>
+            <p>You have been securely logged out of Banking Connect.</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

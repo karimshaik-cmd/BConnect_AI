@@ -26,6 +26,7 @@ from langchain_community.llms import LlamaCpp
 # Local utility imports
 from .ingest_pdf import ingest_documents_to_chroma
 from .ingest_errors import ingest_json_to_chroma
+from .chat_engine import ChatEngine
 
 # --- Configuration and Setup ---
 
@@ -101,7 +102,71 @@ def load_vector_stores():
 # Load vector stores on startup
 load_vector_stores()
 
-# 3. LLM (LlamaCpp)
+# 3. EmbeddingManager for ChatEngine compatibility
+class EmbeddingManager:
+    """Wrapper class to provide ChatEngine-compatible interface for Chroma vectorstores"""
+
+    def __init__(self, banking_vectorstore: Chroma, error_vectorstore: Chroma):
+        self.banking_vectorstore = banking_vectorstore
+        self.error_vectorstore = error_vectorstore
+
+    def search_similar(self, query: str, top_k: int = 5, collection: str = "banking") -> List[Dict[str, Any]]:
+        """Search similar documents in the specified collection"""
+        vectorstore = self.banking_vectorstore if collection == "banking" else self.error_vectorstore
+        if not vectorstore:
+            return []
+
+        docs = vectorstore.similarity_search(query, k=top_k)
+        return [
+            {
+                "content": doc.page_content,
+                "metadata": doc.metadata,
+                "score": 1.0  # Chroma doesn't provide scores directly
+            }
+            for doc in docs
+        ]
+
+    def has_documents(self) -> bool:
+        """Check if documents are loaded"""
+        return (self.banking_vectorstore is not None and
+                self.error_vectorstore is not None)
+
+    def get_stats(self) -> Dict[str, Any]:
+        """Get document statistics"""
+        banking_count = len(self.banking_vectorstore.get()) if self.banking_vectorstore else 0
+        error_count = len(self.error_vectorstore.get()) if self.error_vectorstore else 0
+        return {
+            "documents": banking_count + error_count,
+            "chunks": banking_count + error_count,
+            "file_types": {"banking": banking_count, "error": error_count}
+        }
+
+    def get_recent_sources(self) -> List[str]:
+        """Get recent document sources"""
+        sources = []
+        if self.banking_vectorstore:
+            try:
+                docs = self.banking_vectorstore.get()
+                sources.extend(list(set(doc.get('source', '') for doc in docs['metadatas'] if doc.get('source'))))
+            except:
+                pass
+        if self.error_vectorstore:
+            try:
+                docs = self.error_vectorstore.get()
+                sources.extend(list(set(doc.get('source', '') for doc in docs['metadatas'] if doc.get('source'))))
+            except:
+                pass
+        return list(set(sources))
+
+    def clear_documents(self):
+        """Clear all documents - placeholder for future implementation"""
+        pass
+
+# Initialize EmbeddingManager and ChatEngine
+EMBEDDING_MANAGER = EmbeddingManager(BANKING_VECTORSTORE, ERROR_VECTORSTORE) if BANKING_VECTORSTORE and ERROR_VECTORSTORE else None
+CHAT_ENGINE = ChatEngine(embedding_manager=EMBEDDING_MANAGER) if EMBEDDING_MANAGER else None
+
+# 4. LLM (LlamaCpp)
 @lru_cache(maxsize=1)
 def get_llm():
     """Returns a cached instance of the LlamaCpp LLM."""
@@ -329,77 +394,120 @@ def delete_session(session_id: str):
 
 @app.post("/ask", response_model=ChatResponse)
 async def ask_question(request: ChatRequest):
-    """Handles the question-answering logic with PII check and RAG."""
+    """Handles the question-answering logic with PII check and RAG using ChatEngine."""
     question = request.question.strip()
     session_id = request.session_id or str(uuid.uuid4())
-    
+
     # 1. PII Detection
     if check_for_pii(question):
         ai_response = PII_SAFETY_RESPONSE
         updated_history = update_chat_history(session_id, request.user_type, question, ai_response)
         return ChatResponse(session_id=session_id, answer=ai_response, history=updated_history)
-        
-    try:
-        llm = get_llm()
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        raise HTTPException(status_code=503, detail="LLM Model not available on the server.")
-    except Exception as e:
-        logger.error(f"Error initializing LLM: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error with LLM initialization.")
 
-    # 2. Determine Prompt and Template
-    prompt_type = determine_prompt(question)
-    current_history_str = get_chat_history_string(session_id)
-    
-    if prompt_type == "banking":
-        template = BASE_TEMPLATE
-        vectorstore = BANKING_VECTORSTORE
-    elif prompt_type == "support":
-        template = SUPPORT_TEMPLATE
-        vectorstore = ERROR_VECTORSTORE
-    elif prompt_type == "excel":
-        template = EXCEL_TEMPLATE
-        vectorstore = BANKING_VECTORSTORE
-    else: # chit_chat
-        template = CHIT_CHAT_TEMPLATE
-        vectorstore = None
+    # 2. Check if ChatEngine is available, fallback to LLM if not
+    if not CHAT_ENGINE:
+        logger.warning("ChatEngine not initialized, falling back to local LLM")
+        try:
+            llm = get_llm()
+        except FileNotFoundError as e:
+            logger.error(str(e))
+            raise HTTPException(status_code=503, detail="LLM Model not available on the server.")
+        except Exception as e:
+            logger.error(f"Error initializing LLM: {e}")
+            raise HTTPException(status_code=500, detail="Internal server error with LLM initialization.")
 
-# --- server.py (Modified RAG and Invocation block) ---
+        # Fallback logic using original templates
+        prompt_type = determine_prompt(question)
+        current_history_str = get_chat_history_string(session_id)
 
-    # 3. RAG and Invocation
-    context = "No relevant context found."
-    if vectorstore:
-        # --- Focused RAG for Excel Queries ---
-        # 1. Prioritize the specific API name (e.g., reqMerchantOnboard)
-        search_term = re.findall(r"(resp|req)\w+", question, re.IGNORECASE)
-        search_text = search_term[0] if search_term else question
-        
-        # RETRIEVAL CHANGE: Reduce k to 5 to minimize noise, forcing the LLM to focus on the best chunks.
-        docs = vectorstore.similarity_search(search_text, k=5) 
-        if not docs:
-            docs = vectorstore.similarity_search(question, k=5)
+        if prompt_type == "banking":
+            template = BASE_TEMPLATE
+            vectorstore = BANKING_VECTORSTORE
+        elif prompt_type == "support":
+            template = SUPPORT_TEMPLATE
+            vectorstore = ERROR_VECTORSTORE
+        elif prompt_type == "excel":
+            template = EXCEL_TEMPLATE
+            vectorstore = BANKING_VECTORSTORE
+        else:  # chit_chat
+            template = CHIT_CHAT_TEMPLATE
+            vectorstore = None
 
-        logger.info(f"🔍 Retrieved {len(docs)} docs for query: '{question}'")
-        for i, doc in enumerate(docs[:5]):
-            logger.info(f"[DOC {i+1}] Preview: {doc.page_content[:300]}...")
+        context = "No relevant context found."
+        if vectorstore:
+            search_term = re.findall(r"(resp|req)\w+", question, re.IGNORECASE)
+            search_text = search_term[0] if search_term else question
+            docs = vectorstore.similarity_search(search_text, k=5)
+            if not docs:
+                docs = vectorstore.similarity_search(question, k=5)
 
-        if docs:
-            # Join with a very clear separator for the LLM
-            context = "\n\n--- DOCUMENT CONTEXT START ---\n\n".join([doc.page_content for doc in docs])
+            logger.info(f"🔍 Retrieved {len(docs)} docs for query: '{question}'")
+            if docs:
+                context = "\n\n--- DOCUMENT CONTEXT START ---\n\n".join([doc.page_content for doc in docs])
 
-    full_prompt = PromptTemplate.from_template(template).format(
-        history=current_history_str,
-        context=context,
-        question=question
-    )
+        full_prompt = PromptTemplate.from_template(template).format(
+            history=current_history_str,
+            context=context,
+            question=question
+        )
 
+        try:
+            ai_response = llm.invoke(full_prompt).strip()
+        except Exception as e:
+            logger.error(f"❌ LLM invocation failed: {e}")
+            ai_response = "An internal error occurred while generating the response."
+    else:
+        # 3. Use ChatEngine for enhanced processing
+        logger.info("Using ChatEngine for query processing")
 
-    try:
-        ai_response = llm.invoke(full_prompt).strip()
-    except Exception as e:
-        logger.error(f"❌ LLM invocation failed: {e}")
-        ai_response = "An internal error occurred while generating the response."
+        # Get conversation history for ChatEngine
+        conversation_history = []
+        if session_id in SESSIONS:
+            # Convert to format expected by ChatEngine
+            for msg in SESSIONS[session_id].messages[-6:]:  # Last 3 exchanges
+                conversation_history.append({
+                    "role": msg.role,
+                    "content": msg.content
+                })
+
+        # Determine vectorstore for RAG context
+        prompt_type = determine_prompt(question)
+        if prompt_type == "banking":
+            vectorstore = BANKING_VECTORSTORE
+            collection = "banking"
+        elif prompt_type == "support":
+            vectorstore = ERROR_VECTORSTORE
+            collection = "error"
+        elif prompt_type == "excel":
+            vectorstore = BANKING_VECTORSTORE
+            collection = "banking"
+        else:  # chit_chat
+            vectorstore = None
+            collection = "banking"
+
+        # Get RAG context
+        context = ""
+        if vectorstore:
+            search_term = re.findall(r"(resp|req)\w+", question, re.IGNORECASE)
+            search_text = search_term[0] if search_term else question
+            docs = vectorstore.similarity_search(search_text, k=5)
+            if not docs:
+                docs = vectorstore.similarity_search(question, k=5)
+
+            logger.info(f"🔍 Retrieved {len(docs)} docs for query: '{question}'")
+            if docs:
+                context = "\n\n--- DOCUMENT CONTEXT START ---\n\n".join([doc.page_content for doc in docs])
+
+        # Generate response using ChatEngine
+        try:
+            ai_response = CHAT_ENGINE.generate_response(
+                query=question,
+                context=context,
+                conversation_history=conversation_history
+            )
+        except Exception as e:
+            logger.error(f"❌ ChatEngine generation failed: {e}")
+            ai_response = "An internal error occurred while generating the response."
 
     # 4. History Update and Response
     updated_history = update_chat_history(session_id, request.user_type, question, ai_response)
