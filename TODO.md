@@ -1,28 +1,16 @@
-# Implementation Plan for IBM Cert Tool / ibmb-chatbot Features
+# TODO: Set up Single Production Server (Frontend + Backend)
 
-## Backend Modifications
-- [ ] Create backend/config/settings.py with Groq API config
-- [ ] Add Groq LLM integration to backend/server.py
-- [ ] Implement specialized SYSTEM_PROMPT for API troubleshooting
-- [ ] Add error code extraction logic (regex patterns for IBM\d{3,4})
-- [ ] Enhance RAG with multi-step search (error docs + API specs)
-- [ ] Add new prompt template for API error analysis
-- [ ] Modify determine_prompt() to detect API troubleshooting queries
-- [ ] Update backend/requirements.txt to include groq package
+- [x] Install http-proxy-middleware in frontend
+- [x] Modify frontend/server.js to proxy /api/* requests to backend
+- [x] Update frontend/src/BankingChat.jsx to use API_BASE_URL = '/api'
+- [x] Update frontend/src/components/UserPage.jsx to use API_BASE_URL = '/api'
+- [x] Update frontend/package.json with combined run script
+- [x] Test the single server setup
 
-## Vector Store Enhancements
-- [ ] Enhance backend/ingest_pdf.py for API specs processing
-- [ ] Enhance backend/ingest_errors.py for error code indexing
-- [ ] Add separate collections for error_docs and api_specs
+# TODO: Set up Vite React app with Node.js HTTP server using Express
 
-## Frontend Adaptations
-- [ ] Update frontend/src/BankingChat.jsx for API troubleshooting mode
-- [ ] Add file type detection for error docs vs API specs
-- [ ] Update UI labels to support "API Troubleshooting" mode
-- [ ] Add error code highlighting in responses
-
-## Testing and Validation
-- [ ] Test Groq API integration
-- [ ] Validate error code extraction patterns
-- [ ] Test multi-step RAG performance
-- [ ] UI testing for new features
+- [x] Install Express in frontend folder: Run `npm install express` in frontend/
+- [x] Build the app: Run `npm run build` in frontend/ to generate /dist folder
+- [x] Create frontend/server.js with Express server code for serving static files and SPA routing
+- [x] Update frontend/package.json to add "serve": "node server.js" script
+- [x] Test the server: Run `npm run serve` and verify it runs on http://localhost:8080

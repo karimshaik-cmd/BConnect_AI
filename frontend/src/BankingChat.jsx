@@ -4,7 +4,7 @@ import ChatMessage from './components/ChatMessage';
 import { v4 as uuidv4 } from 'uuid';
 import './BankingChat.css';
 
-const API_BASE_URL = 'http://127.0.0.1:8000';
+const API_BASE_URL = '/api';
 
 function BankingChat({ onLogout, userType }) {
   const [currentSessionId, setCurrentSessionId] = useState(null);

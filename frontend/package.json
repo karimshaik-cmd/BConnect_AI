@@ -1,1 +1,46 @@
-{"name":"banking-chatbot-frontend","version":"1.0.0","description":"Frontend for the banking chatbot","main":"index.js","scripts":{"dev":"vite","build":"vite build","preview":"vite preview","test":"echo \"Error: no test specified\" && exit 1"},"keywords":[],"author":"","license":"ISC","dependencies":{"@fortawesome/fontawesome-free":"^7.1.0","@headlessui/react":"^2.2.9","framer-motion":"^12.23.22","lucide-react":"^0.545.0","react":"^18.3.1","react-dom":"^18.3.1","uuid":"^13.0.0"},"devDependencies":{"@tailwindcss/postcss":"^4.1.14","@types/react":"^18.3.3","@types/react-dom":"^18.3.0","@vitejs/plugin-react":"^4.3.1","autoprefixer":"^10.4.21","postcss":"^8.5.6","tailwindcss":"^4.1.14","vite":"^5.3.4"}}
+{
+  "name": "banking-chatbot-frontend",
+  "version": "1.0.0",
+  "description": "Frontend for the banking chatbot",
+  "main": "server.js",
+  "bin": "server.js",
+  "scripts": {
+    "start": "vite build && vite preview",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "serve": "node server.js",
+    "production": "npm run build && npm run serve",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^7.1.0",
+    "@headlessui/react": "^2.2.9",
+    "express": "^4.21.2",
+    "framer-motion": "^12.23.22",
+    "http-proxy-middleware": "^3.0.5",
+    "lucide-react": "^0.545.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "uuid": "^13.0.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.14",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.14",
+    "vite": "^5.3.4"
+  },
+  "pkg": {
+    "assets": [
+      "dist/**/*"
+    ],
+    "outputPath": "bundled"
+  }
+}

@@ -5,7 +5,10 @@ from groq import Groq
 from langchain.schema import Document
 from langchain_chroma import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
-from .config.settings import APP_CONFIG
+try:
+    from .config.settings import APP_CONFIG
+except ImportError:
+    from config.settings import APP_CONFIG
 
 logger = logging.getLogger(__name__)
 

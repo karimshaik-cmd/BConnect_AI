@@ -13,6 +13,8 @@ from typing import List, Dict, Any, Optional
 
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 # LangChain Imports
@@ -24,9 +26,10 @@ from langchain.schema import Document
 from langchain_community.llms import LlamaCpp
 
 # Local utility imports
-from .ingest_pdf import ingest_documents_to_chroma
-from .ingest_errors import ingest_json_to_chroma
-from .chat_engine import ChatEngine
+from ingest_pdf import ingest_documents_to_chroma
+from ingest_errors import ingest_json_to_chroma
+from chat_engine import ChatEngine
+from data_analyzer import data_analyzer
 
 # --- Configuration and Setup ---
 
@@ -256,6 +259,130 @@ Question (Error/Issue):
 [/INST]
 """
 
+LIST_TEMPLATE = """
+[INST] You are a specialized banking assistant for comprehensive listing queries.
+Your goal is to extract and compile complete, exhaustive lists from all provided context.
+Always structure your response clearly and include ALL relevant items found in the documents.
+
+**CRITICAL INSTRUCTIONS:**
+1. **EXHAUSTIVE EXTRACTION:** Go through ALL context and extract every single relevant item mentioned.
+2. **STRUCTURED OUTPUT:** Organize the list logically (e.g., by category, type, or functional area).
+3. **COMPLETE COVERAGE:** Do not miss any items - check multiple sections of the context.
+4. **SOURCE CITATION:** Indicate which document or section each item comes from when possible.
+5. **NO ASSUMPTIONS:** Only include items explicitly mentioned in the provided context.
+
+Chat History:
+{history}
+
+Context:
+{context}
+
+Question:
+{question}
+[/INST]
+"""
+
+DOCUMENT_TEMPLATE = """
+[INST] You are an "Expert Document Analyst." Your sole function is to process user requests based EXCLUSIVELY on the content of the provided document(s) (PDF, CSV, Excel, Word, etc.).
+
+Your analysis process MUST adhere to the following strict rules:
+
+1. **Single Source of Truth:** The uploaded document is the absolute and final source of all facts. NEVER use external or general knowledge to supplement the answer. If the information requested is not present in the document, you MUST state, "The requested information could not be found in the provided document(s)."
+
+2. **Structured Data Handling (e.g., CSV, Excel):**
+   * Identify all column headers immediately.
+   * Treat the user's query as a database request, mapping their keywords to specific column headers and values.
+   * Filter, sort, and calculate data precisely based on the column and row context.
+
+3. **Unstructured Data Handling (e.g., PDF, Word):**
+   * Analyze the document's structure (headings, bullet points, tables of contents).
+   * When answering, always reference the specific section, chapter, or heading the information came from to add confidence.
+   * For direct quotes, use quotation marks.
+
+4. **Integrity and Precision:**
+   * Be concise and direct. Do not add conversational fluff or introductory sentences unless necessary for context.
+   * For numerical answers, provide the exact figure and units found in the document.
+   * **CRITICAL:** If a calculation is requested, show the exact formula and the resulting value.
+
+5. **Final Output Formatting:**
+   * Use Markdown extensively (bold, lists, tables) to structure the final response for maximum readability.
+   * Group related facts into logical sections.
+   * Present the final answer as a summary or direct list that fully and completely addresses the user's prompt.
+
+Chat History:
+{history}
+
+Context:
+{context}
+
+Question:
+{question}
+[/INST]
+"""
+
+EXTRACT_TEMPLATE = """
+[INST] You are a precision extraction assistant that locates and extracts specific information from documents.
+Your job is to find exact values, text, or data points as requested by the user.
+
+**CRITICAL INSTRUCTIONS:**
+1. **TARGETED EXTRACTION:** Focus on the specific element requested (cell, field, section, value, etc.).
+2. **LOCATION PRECISION:** Include exact location details (filename, sheet, row, column, page, etc.).
+3. **FORMAT PRESERVATION:** Maintain the original format of extracted data (numbers, dates, text).
+4. **MULTIPLE MATCHES:** If multiple instances exist, list all with their locations.
+5. **VERIFICATION:** Cross-reference with metadata to ensure accuracy.
+6. **FALLBACK:** If the exact item cannot be found, suggest the closest matches or state unavailability.
+
+**RESPONSE FORMAT:**
+**Extracted Value:** [Exact value or text]
+**Location:** [Filename] - [Sheet/Page] - [Row/Section]
+**Context:** [Surrounding text for verification]
+**Additional Matches:** [If any]
+
+Chat History:
+{history}
+
+Context:
+{context}
+
+Question:
+{question}
+[/INST]
+"""
+
+COMPARE_TEMPLATE = """
+[INST] You are a comparative analysis assistant that compares data across documents or sections.
+Your goal is to identify similarities, differences, and patterns in the provided information.
+
+**CRITICAL INSTRUCTIONS:**
+1. **SYSTEMATIC COMPARISON:** Compare items point-by-point across sources.
+2. **QUANTITATIVE ANALYSIS:** For numerical data, calculate differences, percentages, or trends.
+3. **QUALITATIVE ANALYSIS:** For text data, identify key similarities and differences.
+4. **SOURCE CITATION:** Clearly indicate which document/section each piece of information comes from.
+5. **STRUCTURED OUTPUT:** Use tables or clear sections for comparisons.
+6. **INSIGHTS:** Provide meaningful insights about the comparisons.
+
+**RESPONSE FORMAT:**
+**Comparison Summary:**
+- [Key findings]
+
+**Detailed Comparison:**
+| Aspect | Source A | Source B | Difference/Notes |
+|--------|----------|----------|------------------|
+| [Item 1] | [Value] | [Value] | [Analysis] |
+
+**Insights:** [Meaningful observations]
+
+Chat History:
+{history}
+
+Context:
+{context}
+
+Question:
+{question}
+[/INST]
+"""
+
 CHIT_CHAT_TEMPLATE = """
 [INST] You are a friendly, but brief, assistant. Your response should be short, natural, and helpful.
 Do not provide any banking or technical advice. If the user asks a substantive question, gently redirect them to ask a specific banking question.
@@ -351,13 +478,67 @@ def check_for_pii(text: str) -> bool:
 
 def determine_prompt(question: str) -> str:
     q = question.lower()
+    # Document queries - extract, summarize, analyze specific content
+    if any(k in q for k in ["extract", "what is the value", "find", "locate", "get me", "cell", "row", "column", "field path", "from the document", "in the file"]):
+        return "extract"
+    # Comparison queries
+    if any(k in q for k in ["compare", "comparison", "difference", "similar", "versus", "vs", "how does", "what's the difference"]):
+        return "compare"
+    # General document queries
+    if any(k in q for k in ["summarize", "summary", "explain", "describe", "what does", "tell me about", "from the", "in the", "according to"]):
+        return "document"
+    # List queries (API-related)
+    if any(k in q for k in ["list", "all", "enumerate", "what are", "show me", "give me", "provide"]) and any(k in q for k in ["api", "apis", "endpoint", "endpoints", "function", "functions", "method", "methods"]):
+        return "list"
+    # Support queries
     if any(k in q for k in ["error", "issue", "bug", "fix", "troubleshoot", "failed to log", "cannot connect"]):
         return "support"
+    # Excel/API field queries
     if any(k in q for k in ["excel", "field", "required", "optional", "regex", "datatype", "api"]):
         return "excel"
+    # Chit-chat
     if len(q.split()) < 4 or any(q in x for x in ["hi", "hello", "thanks", "bye", "thank you"]):
         return "chit_chat"
     return "banking"
+
+def _format_analysis_result(analysis_result: Dict[str, Any], question: str) -> str:
+    """Format analysis results for LLM consumption"""
+    formatted_parts = []
+
+    # Handle different result types
+    if 'regex_enum_value' in analysis_result:
+        formatted_parts.append(f"**RegEx/Enum Value:** {analysis_result['regex_enum_value']}")
+        formatted_parts.append(f"**Element:** {analysis_result['element']}")
+        formatted_parts.append(f"**Source Column:** {analysis_result['source_column']}")
+
+    elif 'required_optional_status' in analysis_result:
+        formatted_parts.append(f"**Required/Optional Status:** {analysis_result['required_optional_status']}")
+        formatted_parts.append(f"**Field:** {analysis_result['field']}")
+        if analysis_result.get('parent'):
+            formatted_parts.append(f"**Parent:** {analysis_result['parent']}")
+
+    elif 'level_elements' in analysis_result:
+        formatted_parts.append(f"**Level {analysis_result['level']} Elements (Type: {analysis_result['type_filter']}):**\n" +
+                             "\n".join(f"- {elem}" for elem in analysis_result['level_elements']))
+
+    elif 'matching_row' in analysis_result:
+        formatted_parts.append("**Matching Row:**")
+        for key, value in analysis_result['matching_row'].items():
+            formatted_parts.append(f"- **{key}:** {value}")
+
+    elif 'blank_columns' in analysis_result:
+        formatted_parts.append(f"**Blank Columns for {analysis_result['element']}:** " +
+                             ", ".join(analysis_result['blank_columns']))
+        formatted_parts.append(f"**Analysis:** {analysis_result['analysis']}")
+
+    elif 'summary' in analysis_result:
+        summary = analysis_result['summary']
+        formatted_parts.append("**Data Summary:**")
+        formatted_parts.append(f"- Total Rows: {summary['total_rows']}")
+        formatted_parts.append(f"- Total Columns: {summary['total_columns']}")
+        formatted_parts.append(f"- Columns: {', '.join(summary['columns'])}")
+
+    return "\n".join(formatted_parts)
 
 # --- FastAPI App Initialization ---
 
@@ -375,15 +556,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Mount static files from frontend/dist directory
+app.mount("/static", StaticFiles(directory="../frontend/dist", html=True), name="static")
+
 # --- API Endpoints ---
 
-@app.get("/sessions", response_model=List[ChatHistory])
+@app.get("/api/sessions", response_model=List[ChatHistory])
 def get_all_sessions(user_type: str):
     """Retrieves a list of all current chat sessions for the sidebar."""
     # Convert the dictionary values to a list of ChatHistory objects
     return [s for s in SESSIONS.values() if s.user_type == user_type]
 
-@app.delete("/sessions/{session_id}")
+@app.delete("/api/sessions/{session_id}")
 def delete_session(session_id: str):
     """Deletes a specific chat session."""
     if session_id not in SESSIONS:
@@ -392,7 +576,7 @@ def delete_session(session_id: str):
     save_sessions(SESSIONS)
     return {"message": f"Session {session_id} deleted successfully"}
 
-@app.post("/ask", response_model=ChatResponse)
+@app.post("/api/ask", response_model=ChatResponse)
 async def ask_question(request: ChatRequest):
     """Handles the question-answering logic with PII check and RAG using ChatEngine."""
     question = request.question.strip()
@@ -428,6 +612,18 @@ async def ask_question(request: ChatRequest):
             vectorstore = ERROR_VECTORSTORE
         elif prompt_type == "excel":
             template = EXCEL_TEMPLATE
+            vectorstore = BANKING_VECTORSTORE
+        elif prompt_type == "list":
+            template = LIST_TEMPLATE
+            vectorstore = BANKING_VECTORSTORE
+        elif prompt_type == "document":
+            template = DOCUMENT_TEMPLATE
+            vectorstore = BANKING_VECTORSTORE
+        elif prompt_type == "extract":
+            template = EXTRACT_TEMPLATE
+            vectorstore = BANKING_VECTORSTORE
+        elif prompt_type == "compare":
+            template = COMPARE_TEMPLATE
             vectorstore = BANKING_VECTORSTORE
         else:  # chit_chat
             template = CHIT_CHAT_TEMPLATE
@@ -481,6 +677,18 @@ async def ask_question(request: ChatRequest):
         elif prompt_type == "excel":
             vectorstore = BANKING_VECTORSTORE
             collection = "banking"
+        elif prompt_type == "list":
+            vectorstore = BANKING_VECTORSTORE
+            collection = "banking"
+        elif prompt_type == "document":
+            vectorstore = BANKING_VECTORSTORE
+            collection = "banking"
+        elif prompt_type == "extract":
+            vectorstore = BANKING_VECTORSTORE
+            collection = "banking"
+        elif prompt_type == "compare":
+            vectorstore = BANKING_VECTORSTORE
+            collection = "banking"
         else:  # chit_chat
             vectorstore = None
             collection = "banking"
@@ -488,15 +696,137 @@ async def ask_question(request: ChatRequest):
         # Get RAG context
         context = ""
         if vectorstore:
-            search_term = re.findall(r"(resp|req)\w+", question, re.IGNORECASE)
-            search_text = search_term[0] if search_term else question
-            docs = vectorstore.similarity_search(search_text, k=5)
-            if not docs:
-                docs = vectorstore.similarity_search(question, k=5)
+            # Enhanced search strategy for better document retrieval
+            search_terms = []
 
-            logger.info(f"🔍 Retrieved {len(docs)} docs for query: '{question}'")
+            # Extract API object names (reqXXX, respXXX patterns)
+            api_objects = re.findall(r"(req|resp)\w+", question, re.IGNORECASE)
+            search_terms.extend(api_objects)
+
+            # Extract field names and data types
+            field_patterns = re.findall(r"'([^']+)'|\"([^\"]+)\"", question)
+            for pattern in field_patterns:
+                search_terms.extend([p for p in pattern if p])
+
+            # Add the full question as fallback
+            search_terms.append(question)
+
+            # Try different search strategies
+            docs = []
+            for term in search_terms[:3]:  # Limit to first 3 terms to avoid too many searches
+                term_docs = vectorstore.similarity_search(term, k=3)
+                docs.extend(term_docs)
+
+            # Remove duplicates based on content
+            seen_content = set()
+            unique_docs = []
+            for doc in docs:
+                if doc.page_content not in seen_content:
+                    seen_content.add(doc.page_content)
+                    unique_docs.append(doc)
+
+            docs = unique_docs[:8]  # Limit to top 8 unique docs
+
+            logger.info(f"🔍 Retrieved {len(docs)} docs for query: '{question}' using enhanced search")
             if docs:
                 context = "\n\n--- DOCUMENT CONTEXT START ---\n\n".join([doc.page_content for doc in docs])
+
+        # Check if this is a structured data query that needs code execution analysis
+        structured_data_keywords = [
+            "csv", "excel", "spreadsheet", "data", "table", "field", "column", "row",
+            "filter", "sort", "calculate", "sum", "average", "count",
+            "regex", "enum", "pattern", "required", "optional", "status",
+            "level", "elements", "type", "min length", "max length", "min value", "max value",
+            "blank", "null", "nan", "appears blank"
+        ]
+
+        is_structured_query = any(keyword in question.lower() for keyword in structured_data_keywords)
+
+        # Skip code execution for queries that can be handled by RAG context (list, document, extract)
+        skip_code_execution = prompt_type in ["list", "document", "extract"]
+
+        if is_structured_query and not skip_code_execution:
+            # Use LLM-driven code execution for structured data queries
+            try:
+                # Find the uploaded file path from vectorstore metadata
+                file_path = None
+                if docs:
+                    for doc in docs:
+                        if doc.metadata.get('source'):
+                            file_path = doc.metadata['source']
+                            break
+
+                if file_path and os.path.exists(file_path):
+                    logger.info(f"Running LLM-driven code execution analysis on file: {file_path}")
+
+                    # Generate Python code using ChatEngine
+                    code_generation_prompt = f"""
+You are a Python code generator for data analysis. Given a CSV/Excel file and a user query, generate precise Python code using pandas to extract the exact information requested.
+
+File path: {file_path}
+User query: {question}
+
+Requirements:
+1. Use pandas to read the file (pd.read_csv for CSV, pd.read_excel for Excel)
+2. Analyze the data structure and column names
+3. Write code that directly answers the query with filtering, searching, or calculations
+4. Output results as JSON using print(json.dumps(result))
+5. Handle missing values and data types appropriately
+6. For regex/enum values, search across all relevant columns
+7. For required/optional status, find the exact field and its status
+8. For level elements, filter by type and extract element names
+9. For min/max values, find rows matching the criteria
+10. For blank/null analysis, identify why fields appear empty
+
+Example output format:
+```python
+import pandas as pd
+import json
+
+df = pd.read_csv('{file_path}')
+# Your analysis code here
+result = {{"answer": "extracted_value", "details": "additional_info"}}
+print(json.dumps(result))
+```
+
+Generate only the Python code, no explanations.
+"""
+
+                    # Use ChatEngine to generate code
+                    generated_code = CHAT_ENGINE.generate_response(
+                        query=f"Generate Python code to analyze: {question}",
+                        context=code_generation_prompt,
+                        conversation_history=[]
+                    )
+
+                    # Extract code from response (assuming it's wrapped in ```python blocks)
+                    code_match = re.search(r'```python\s*(.*?)\s*```', generated_code, re.DOTALL)
+                    if code_match:
+                        code = code_match.group(1).strip()
+                    else:
+                        # Fallback: assume the entire response is code
+                        code = generated_code.strip()
+
+                    # Execute the generated code
+                    analysis_result = data_analyzer.execute_generated_code(file_path, code)
+
+                    if 'error' not in analysis_result:
+                        # Format the analysis result for LLM consumption
+                        formatted_result = _format_analysis_result(analysis_result, question)
+                        context = f"Code Execution Analysis Results:\n{formatted_result}"
+                        logger.info(f"LLM-driven analysis completed successfully for query: {question}")
+                    else:
+                        context = f"Data analysis failed: {analysis_result['error']}"
+                        logger.warning(f"Analysis failed: {analysis_result['error']}")
+                else:
+                    context = "No structured data file found for analysis. Please upload a CSV or Excel file first."
+                    logger.warning("No structured data file found for analysis")
+            except Exception as e:
+                logger.error(f"Data analysis failed: {e}")
+                context = f"Data analysis unavailable due to error: {str(e)}"
+        else:
+            # Use standard RAG context for non-structured queries
+            pass
 
         # Generate response using ChatEngine
         try:
@@ -514,7 +844,7 @@ async def ask_question(request: ChatRequest):
 
     return ChatResponse(session_id=session_id, answer=ai_response, history=updated_history)
 
-@app.post("/upload-pdfs")
+@app.post("/api/upload-pdfs")
 async def upload_pdfs(files: List[UploadFile] = File(...)):
     """Accepts and processes PDF, Excel, Word, CSV, and TXT files, ingesting them into the banking_docs vector store."""
     if not BANKING_VECTORSTORE:
@@ -557,7 +887,7 @@ async def upload_pdfs(files: List[UploadFile] = File(...)):
         if os.path.exists(temp_dir):
             os.rmdir(temp_dir)
 
-@app.post("/upload-documents")
+@app.post("/api/upload-documents")
 async def upload_documents(files: List[UploadFile] = File(...)):
     """
     Accepts and processes PDF, Excel, Word, CSV, or TXT files,
@@ -605,7 +935,7 @@ async def upload_documents(files: List[UploadFile] = File(...)):
             os.rmdir(temp_dir)
 
 
-@app.post("/upload-errors")
+@app.post("/api/upload-errors")
 async def upload_errors(files: List[UploadFile] = File(...)):
     """Accepts and processes JSON error files, ingesting them into the error_docs vector store."""
     if not ERROR_VECTORSTORE:
@@ -647,13 +977,22 @@ async def upload_errors(files: List[UploadFile] = File(...)):
         if os.path.exists(temp_dir):
             os.rmdir(temp_dir)
 
-@app.get("/")
-def read_root():
-    return {"message": "Banking Chatbot API is running."}
+# SPA fallback route - serve index.html for all non-API routes
+@app.get("/{full_path:path}")
+async def serve_spa(full_path: str):
+    """Serve the React SPA for all non-API routes."""
+    if full_path.startswith("api/"):
+        # This shouldn't happen as API routes are handled above, but just in case
+        return {"message": "API route not found"}
+    # Serve static files if they exist, otherwise serve index.html
+    static_path = f"../frontend/dist/{full_path}"
+    if os.path.exists(static_path) and os.path.isfile(static_path):
+        return FileResponse(static_path)
+    return FileResponse("../frontend/dist/index.html")
 
-# Startup hook to check for model
+# Startup hook to check for model and initialize data analyzer
 @app.on_event("startup")
-def startup_event():
+async def startup_event():
     try:
         # Pre-check LLM availability
         get_llm()
@@ -661,3 +1000,20 @@ def startup_event():
         logger.error("LLM model file not found. System will run, but /ask endpoint will fail.")
     except Exception as e:
         logger.error(f"Error on LLM startup: {e}")
+
+    try:
+        # Initialize data analyzer sandbox
+        data_analyzer.initialize_sandbox()
+        logger.info("Data analyzer sandbox initialized successfully.")
+    except Exception as e:
+        logger.error(f"Failed to initialize data analyzer sandbox: {e}")
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(
+        "server:app",
+        host="127.0.0.1",
+        port=8000,
+        reload=False,
+        log_level="info"
+    )
